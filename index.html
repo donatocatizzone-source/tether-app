@@ -352,6 +352,128 @@
                         <div class="font-bold text-slate-900 text-sm">Marketplace</div>
                         <div class="text-[11px] text-slate-500 mt-0.5">Buying & Selling</div>
                     </button>
+
+                    <!-- Student Mode (RE-ADDED) -->
+                    <button onclick="openModeMenu('student')" class="p-4 bg-white rounded-2xl border border-slate-100 shadow-sm active:scale-95 transition text-left group hover:border-emerald-200">
+                        <div class="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-500 flex items-center justify-center mb-3 group-hover:bg-emerald-100 transition">
+                            <i data-lucide="graduation-cap" class="w-5 h-5"></i>
+                        </div>
+                        <div class="font-bold text-slate-900 text-sm">Student</div>
+                        <div class="text-[11px] text-slate-500 mt-0.5">Campus Safety</div>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- === NEW: STUDENT MODE BUS === -->
+        <div id="screen-student-bus" class="screen bg-yellow-50">
+            <!-- Bus Map Background -->
+            <div class="absolute inset-0 z-0 opacity-60">
+                <svg width="100%" height="100%">
+                    <rect width="100%" height="100%" fill="#fefce8" /> <!-- Yellow-50 -->
+                    <path d="M 50 700 L 180 400 L 300 100" stroke="#fbbf24" stroke-width="12" fill="none" stroke-linecap="round" stroke-linejoin="round" />
+                    <path d="M 50 700 L 180 400 L 300 100" stroke="#fff" stroke-width="4" fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="10 10" />
+                </svg>
+            </div>
+
+            <div class="relative z-10 h-full flex flex-col">
+                <div class="p-6 pt-12">
+                     <button onclick="switchScreen('home')" class="w-10 h-10 bg-white shadow-lg rounded-full mb-6 flex items-center justify-center"><i data-lucide="arrow-left" class="w-5 h-5 text-yellow-700"></i></button>
+                     <div class="bg-white p-5 rounded-2xl shadow-xl border border-yellow-200 flex items-center gap-4">
+                        <div class="w-12 h-12 bg-yellow-100 rounded-full flex items-center justify-center flex-shrink-0 text-yellow-600 font-bold">
+                            <i data-lucide="bus" class="w-6 h-6"></i>
+                        </div>
+                        <div class="flex-1">
+                            <h3 class="font-bold text-base text-slate-900">Route 44 School Bus</h3>
+                            <p class="text-xs text-slate-500">Heading Home • Stopped</p>
+                        </div>
+                     </div>
+                </div>
+
+                <!-- Bus Element -->
+                <div id="bus-icon" class="absolute w-12 h-12 bg-yellow-500 rounded-lg border-[3px] border-white shadow-xl transition-all duration-[3000ms] ease-linear z-30 flex items-center justify-center text-white" style="left: 45px; top: 600px;">
+                    <i data-lucide="bus" class="w-6 h-6"></i>
+                </div>
+
+                <div class="mt-auto p-6 pb-24">
+                    <button onclick="runBusSim()" class="w-full py-4 bg-yellow-500 text-white rounded-xl font-bold shadow-lg hover:bg-yellow-600 transition">Simulate Bus Route</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- === NEW: STUDENT MODE WALK === -->
+        <div id="screen-student-walk" class="screen bg-emerald-50">
+            <div class="h-full flex flex-col p-6 pt-12 relative">
+                <div class="flex items-center gap-3 mb-10">
+                    <button onclick="switchScreen('home')" class="w-10 h-10 bg-white rounded-full shadow-sm flex items-center justify-center"><i data-lucide="arrow-left" class="w-5 h-5 text-emerald-900"></i></button>
+                    <div>
+                        <h2 class="font-bold text-emerald-900 text-lg">Walk Home</h2>
+                        <p class="text-xs text-emerald-700">Timer Active</p>
+                    </div>
+                </div>
+
+                <div class="flex-1 flex flex-col items-center justify-center pb-20">
+                     <div class="w-56 h-56 rounded-full border-8 border-emerald-200 flex flex-col items-center justify-center bg-white shadow-2xl mb-10 relative">
+                         <div class="absolute -top-2 left-1/2 transform -translate-x-1/2 bg-emerald-100 text-emerald-700 px-3 py-1 rounded-full text-[10px] font-bold tracking-wide">SAFE PASSAGE</div>
+                         <span class="text-4xl font-mono font-bold text-emerald-600 tracking-tighter" id="walk-timer">15:00</span>
+                         <span class="text-[10px] text-slate-400 uppercase mt-1 font-bold">To Home</span>
+                     </div>
+                     
+                     <div class="bg-white p-5 rounded-2xl shadow-lg border border-emerald-100 w-full mb-4">
+                         <div class="flex justify-between items-center mb-3">
+                             <div class="flex items-center gap-2">
+                                 <i data-lucide="map-pin" class="w-4 h-4 text-emerald-500"></i>
+                                 <span class="text-sm font-bold text-slate-700">Destination: Home</span>
+                             </div>
+                         </div>
+                         <div class="w-full bg-slate-100 h-2.5 rounded-full overflow-hidden">
+                             <div id="walk-bar" class="h-full bg-emerald-500 w-0 transition-all duration-1000"></div>
+                         </div>
+                         <p class="text-[11px] text-slate-400 mt-3 text-right font-medium">0.4 miles remaining</p>
+                     </div>
+                </div>
+
+                <button onclick="startWalkSim()" class="w-full py-4 bg-emerald-600 text-white rounded-2xl font-bold shadow-xl hover:bg-emerald-700 transition">Start Walk Simulation</button>
+            </div>
+        </div>
+
+        <!-- === NEW: STUDENT MODE HANGOUT === -->
+        <div id="screen-student-hangout" class="screen bg-indigo-50">
+            <div class="h-full flex flex-col p-6 pt-12 relative">
+                <div class="flex items-center gap-3 mb-6">
+                    <button onclick="switchScreen('home')" class="w-10 h-10 bg-white rounded-full shadow-sm flex items-center justify-center"><i data-lucide="arrow-left" class="w-5 h-5 text-indigo-900"></i></button>
+                    <div>
+                        <h2 class="font-bold text-indigo-900 text-lg">Who are you with?</h2>
+                        <p class="text-xs text-indigo-700">Create a Safety Bubble</p>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-3 gap-4 mb-8">
+                    <button onclick="toggleFriend(this)" class="aspect-square bg-white rounded-2xl flex flex-col items-center justify-center shadow-sm border-2 border-transparent hover:border-indigo-300 transition gap-2">
+                        <div class="w-10 h-10 rounded-full bg-indigo-100 flex items-center justify-center">👩</div>
+                        <span class="text-xs font-bold text-slate-700">Sarah</span>
+                    </button>
+                    <button onclick="toggleFriend(this)" class="aspect-square bg-white rounded-2xl flex flex-col items-center justify-center shadow-sm border-2 border-transparent hover:border-indigo-300 transition gap-2">
+                        <div class="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center">👨</div>
+                        <span class="text-xs font-bold text-slate-700">Mike</span>
+                    </button>
+                    <button onclick="toggleFriend(this)" class="aspect-square bg-white rounded-2xl flex flex-col items-center justify-center shadow-sm border-2 border-transparent hover:border-indigo-300 transition gap-2">
+                        <div class="w-10 h-10 rounded-full bg-pink-100 flex items-center justify-center">👩</div>
+                        <span class="text-xs font-bold text-slate-700">Jess</span>
+                    </button>
+                    <button class="aspect-square bg-white/50 rounded-2xl flex flex-col items-center justify-center border-2 border-dashed border-indigo-200 text-indigo-400">
+                        <i data-lucide="plus" class="w-6 h-6"></i>
+                    </button>
+                </div>
+
+                <div class="bg-white p-6 rounded-3xl shadow-sm border border-indigo-100">
+                    <h4 class="font-bold text-sm mb-2 text-indigo-900">Guardian Notification</h4>
+                    <p class="text-xs text-slate-500 mb-4">"Checking in at <span class="font-bold">Starbucks</span> with..."</p>
+                    <div id="hangout-list" class="flex gap-2 min-h-[24px]"></div>
+                </div>
+
+                <div class="mt-auto pb-24">
+                    <button onclick="showToast('Safety Bubble Created', 'success'); switchScreen('home')" class="w-full py-4 bg-indigo-600 text-white rounded-2xl font-bold shadow-xl hover:bg-indigo-700 transition">Check In</button>
                 </div>
             </div>
         </div>
@@ -868,6 +990,15 @@
                     { icon: "camera", title: "Evidence Locker", desc: "Securely upload photos", action: "switchScreen('market')" },
                     { icon: "shield-check", title: "Vouch Badge", desc: "Show verifying badge to seller", action: "showToast('Verified Badge Displayed', 'success')" }
                 ]
+            },
+            student: {
+                title: "Student Mode",
+                subtitle: "Campus & Commute Safety",
+                features: [
+                    { icon: "bus", title: "School Bus Mode", desc: "Track route home", action: "switchScreen('student-bus')" },
+                    { icon: "map-pin", title: "Walking Home", desc: "Safe passage timer", action: "switchScreen('student-walk')" },
+                    { icon: "users", title: "Hanging Out", desc: "Log who you are with", action: "switchScreen('student-hangout')" }
+                ]
             }
         };
 
@@ -962,6 +1093,7 @@
             // Reset specific states
             if(screenId !== 'dating') resetFakeCall();
             if(screenId !== 'market') document.getElementById('market-success').classList.add('hidden');
+            if (screenId === 'student-bus') resetBusSim(); // Reset bus position when opening bus screen
             
             // Close menu if open
             document.getElementById('menu-drawer').classList.remove('open');
@@ -1040,6 +1172,88 @@
             car.style.transition = 'all 0.5s';
             car.style.left = '45px';
             car.style.top = '690px';
+        }
+
+        // --- NEW STUDENT DEMO LOGIC ---
+        
+        // 1. Bus Sim
+        function runBusSim() {
+            const bus = document.getElementById('bus-icon');
+            
+            // Ensure bus is reset first
+            bus.style.transition = 'none';
+            bus.style.left = '45px';
+            bus.style.top = '600px';
+            
+            void bus.offsetWidth; // Force Reflow
+            
+            // Start Multi-Stage Animation
+            bus.style.transition = 'left 3s linear, top 3s linear';
+            bus.style.left = '145px';
+            bus.style.top = '400px';
+            
+            setTimeout(() => {
+                // Second stage
+                bus.style.transition = 'left 3s linear, top 3s linear';
+                bus.style.left = '300px';
+                bus.style.top = '100px';
+                showToast('Bus Route Monitored', 'success');
+            }, 3000);
+        }
+
+        function resetBusSim() {
+            const bus = document.getElementById('bus-icon');
+            if(bus) {
+                bus.style.transition = 'none';
+                bus.style.left = '45px';
+                bus.style.top = '600px';
+            }
+        }
+
+        // 2. Walk Sim
+        let walkInterval;
+        function startWalkSim() {
+            let timeLeft = 15 * 60;
+            const timer = document.getElementById('walk-timer');
+            const bar = document.getElementById('walk-bar');
+            
+            clearInterval(walkInterval);
+            
+            walkInterval = setInterval(() => {
+                timeLeft -= 60; // Fast forward
+                let m = Math.floor(timeLeft / 60);
+                let s = timeLeft % 60;
+                timer.innerText = `${m}:${s < 10 ? '0'+s : s}`;
+                
+                let percent = ((15*60 - timeLeft) / (15*60)) * 100;
+                bar.style.width = `${percent}%`;
+                
+                if (timeLeft <= 0) {
+                    clearInterval(walkInterval);
+                    showToast('Safely Arrived Home', 'success');
+                }
+            }, 200);
+        }
+
+        // 3. Hangout Sim
+        function toggleFriend(btn) {
+            btn.classList.toggle('border-indigo-500');
+            btn.classList.toggle('bg-indigo-50');
+            
+            const list = document.getElementById('hangout-list');
+            const name = btn.querySelector('span').innerText;
+            
+            // Simple visual toggle logic
+            if (btn.classList.contains('bg-indigo-50')) {
+                const tag = document.createElement('span');
+                tag.id = `tag-${name}`;
+                tag.className = 'text-[10px] bg-indigo-100 text-indigo-700 px-2 py-1 rounded-full font-bold';
+                tag.innerText = name;
+                list.appendChild(tag);
+            } else {
+                const tag = document.getElementById(`tag-${name}`);
+                if (tag) tag.remove();
+            }
         }
 
         // Countdown Logic (Main)
