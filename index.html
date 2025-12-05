@@ -192,22 +192,16 @@
                     <i data-lucide="chevron-right" class="w-4 h-4 text-slate-500 ml-auto"></i>
                 </button>
 
-                <div class="w-full p-4 bg-slate-800/50 rounded-xl flex flex-col gap-3 text-white hover:bg-slate-800 transition group">
-                    <div class="flex items-center gap-4 cursor-pointer" onclick="openPremium('guardian')">
-                         <div class="w-10 h-10 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center group-hover:bg-emerald-500 group-hover:text-white transition">
-                            <i data-lucide="users" class="w-5 h-5"></i>
-                        </div>
-                        <div class="text-left flex-1">
-                            <div class="font-bold text-sm">Guardian Dashboard</div>
-                            <div class="text-xs text-slate-400">Parental controls</div>
-                        </div>
-                        <i data-lucide="chevron-right" class="w-4 h-4 text-slate-500"></i>
+                <button onclick="openPremium('guardian')" class="w-full p-4 bg-slate-800/50 rounded-xl flex items-center gap-4 text-white hover:bg-slate-800 transition group">
+                    <div class="w-10 h-10 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center group-hover:bg-emerald-500 group-hover:text-white transition">
+                        <i data-lucide="users" class="w-5 h-5"></i>
                     </div>
-                    <!-- Preview Button Added Here -->
-                    <button onclick="openGuardianPreview(); event.stopPropagation();" class="w-full py-2 mt-1 text-xs font-bold text-emerald-400 bg-emerald-500/10 rounded-lg border border-emerald-500/30 hover:bg-emerald-500/20 transition flex items-center justify-center gap-2">
-                        <i data-lucide="eye" class="w-3 h-3"></i> See Preview
-                    </button>
-                </div>
+                    <div class="text-left">
+                        <div class="font-bold text-sm">Guardian Dashboard</div>
+                        <div class="text-xs text-slate-400">Parental controls</div>
+                    </div>
+                    <i data-lucide="chevron-right" class="w-4 h-4 text-slate-500 ml-auto"></i>
+                </button>
 
                 <button onclick="openPremium('badge')" class="w-full p-4 bg-slate-800/50 rounded-xl flex items-center gap-4 text-white hover:bg-slate-800 transition group">
                     <div class="w-10 h-10 rounded-full bg-blue-500/20 text-blue-400 flex items-center justify-center group-hover:bg-blue-500 group-hover:text-white transition">
@@ -723,6 +717,45 @@
                 </div>
             </div>
         </div>
+        
+         <!-- === NEW: VAULT SCREEN - REBUILT === -->
+        <div id="screen-vault" class="screen bg-slate-900 text-white">
+            <div class="h-full flex flex-col p-6 pt-12 relative">
+                 <div class="flex items-center gap-3 mb-8 sticky top-0 z-10 bg-slate-900 py-2">
+                     <button onclick="switchScreen('home')" class="w-10 h-10 bg-slate-800 rounded-full shadow-sm flex items-center justify-center hover:bg-slate-700 transition">
+                        <i data-lucide="arrow-left" class="w-5 h-5 text-white"></i>
+                    </button>
+                    <div>
+                        <h2 class="font-bold text-xl text-white">Evidence Vault</h2>
+                        <p class="text-xs text-slate-400">Encrypted & Locked</p>
+                    </div>
+                </div>
+                
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="aspect-square bg-slate-800 rounded-2xl border border-slate-700 flex flex-col items-center justify-center relative overflow-hidden group">
+                        <div class="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1549317661-bd32c8ce0db2?ixlib=rb-1.2.1&auto=format&fit=crop&w=200&q=80')] bg-cover opacity-30 group-hover:opacity-50 transition"></div>
+                        <div class="relative z-10 flex flex-col items-center">
+                            <i data-lucide="lock" class="w-6 h-6 text-emerald-400 mb-2"></i>
+                            <span class="text-[10px] font-mono text-slate-300">IMG_2921.enc</span>
+                        </div>
+                    </div>
+                    <div class="aspect-square bg-slate-800 rounded-2xl border border-slate-700 flex flex-col items-center justify-center relative overflow-hidden group">
+                        <div class="absolute inset-0 bg-slate-700 opacity-50 group-hover:opacity-60 transition"></div>
+                         <div class="relative z-10 flex flex-col items-center">
+                            <i data-lucide="file-text" class="w-6 h-6 text-blue-400 mb-2"></i>
+                            <span class="text-[10px] font-mono text-slate-300">LOG_8821.txt</span>
+                        </div>
+                    </div>
+                    <div class="aspect-square bg-slate-800 rounded-2xl border border-slate-700 flex flex-col items-center justify-center relative overflow-hidden group">
+                        <div class="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1494976388531-d1058494cdd8?ixlib=rb-1.2.1&auto=format&fit=crop&w=200&q=80')] bg-cover opacity-30 group-hover:opacity-50 transition"></div>
+                        <div class="relative z-10 flex flex-col items-center">
+                            <i data-lucide="lock" class="w-6 h-6 text-emerald-400 mb-2"></i>
+                            <span class="text-[10px] font-mono text-slate-300">IMG_2922.enc</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
 
 
         <!-- === SCREEN: SETTINGS === -->
@@ -1190,6 +1223,11 @@
             market: {
                 title: "Marketplace Mode",
                 subtitle: "Secure buying & selling",
+                connectedApps: [
+                     { icon: "store", bg: "bg-blue-600", color: "text-white" },
+                     { icon: "tag", bg: "bg-green-500", color: "text-white", isText: true, text: "OU" },
+                     { icon: "list", bg: "bg-purple-700", color: "text-white", isText: true, text: "CL" }
+                ],
                 features: [
                     { icon: "camera", title: "Evidence Locker", desc: "Securely upload photos", action: "switchScreen('market')" },
                     { icon: "lock", title: "View Evidence Vault", desc: "Access encrypted files", action: "switchScreen('vault')" },
