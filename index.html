@@ -1,0 +1,711 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tether: Mobile App</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #0f172a; /* Slate 900 */
+            color: #f8fafc;
+            height: 100vh;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Brand Gradients */
+        .bg-brand-gradient {
+            background: linear-gradient(135deg, #4292c6 0%, #2dd4bf 100%);
+        }
+
+        /* Phone Simulator - Cleaned up */
+        .phone-frame {
+            width: 375px;
+            height: 812px;
+            box-shadow: 0 0 0 12px #1e293b, 0 0 0 13px #334155, 0 50px 100px -20px rgba(0, 0, 0, 0.7);
+            border-radius: 50px;
+            overflow: hidden;
+            position: relative;
+            background: #fff;
+            transform: scale(0.9); /* Default scale for smaller screens */
+        }
+
+        @media (min-height: 900px) {
+            .phone-frame { transform: scale(1); }
+        }
+        
+        /* Dynamic Notch */
+        .notch {
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 160px;
+            height: 32px;
+            background: #1e293b;
+            border-bottom-left-radius: 20px;
+            border-bottom-right-radius: 20px;
+            z-index: 50;
+        }
+
+        /* Screen Transitions */
+        .screen {
+            position: absolute;
+            inset: 0;
+            background: #fff;
+            color: #0f172a;
+            overflow-y: auto;
+            overflow-x: hidden;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+        .screen.active {
+            opacity: 1;
+            pointer-events: auto;
+            z-index: 10;
+        }
+
+        /* Custom Scrollbar for Phone */
+        .screen::-webkit-scrollbar { width: 0px; }
+
+        /* Animations */
+        @keyframes ping-slow {
+            75%, 100% { transform: scale(2); opacity: 0; }
+        }
+        .animate-ping-slow { animation: ping-slow 2s cubic-bezier(0, 0, 0.2, 1) infinite; }
+        
+        /* Toast Notification Animation */
+        @keyframes slideDownFade {
+            from { opacity: 0; transform: translateY(-20px) translateX(-50%); }
+            to { opacity: 1; transform: translateY(0) translateX(-50%); }
+        }
+        .toast-notification {
+            position: absolute;
+            top: 50px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 60;
+            animation: slideDownFade 0.3s ease-out forwards;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Background Ambience -->
+    <div class="fixed inset-0 pointer-events-none">
+        <div class="absolute top-1/4 left-1/4 w-96 h-96 bg-[#4292c6] opacity-20 rounded-full blur-[100px]"></div>
+        <div class="absolute bottom-1/4 right-1/4 w-96 h-96 bg-[#2dd4bf] opacity-20 rounded-full blur-[100px]"></div>
+    </div>
+
+    <!-- Phone Frame -->
+    <div class="phone-frame shadow-2xl z-20">
+        <div class="notch"></div>
+        
+        <!-- STATUS BAR -->
+        <div class="absolute top-0 w-full h-12 z-40 flex justify-between items-center px-8 pt-2">
+            <span class="text-[12px] font-bold text-slate-900 status-text">9:41</span>
+            <div class="flex gap-1.5 status-icons text-slate-900">
+                <i data-lucide="signal" class="w-3.5 h-3.5"></i>
+                <i data-lucide="wifi" class="w-3.5 h-3.5"></i>
+                <i data-lucide="battery" class="w-3.5 h-3.5"></i>
+            </div>
+        </div>
+
+        <!-- Toast Container (Injected via JS) -->
+        <div id="toast-container"></div>
+
+        <!-- === SCREEN 1: HOME DASHBOARD === -->
+        <div id="screen-home" class="screen active bg-slate-50 pb-24">
+            <!-- Header -->
+            <div class="p-6 pt-16 pb-6 bg-white border-b border-slate-100 shadow-sm sticky top-0 z-20">
+                <div class="flex justify-between items-center mb-4">
+                    <div class="w-10 h-10 rounded-full bg-slate-200 overflow-hidden border-2 border-white shadow">
+                        <img src="https://i.pravatar.cc/150?u=a042581f4e29026024d" alt="Profile" class="w-full h-full object-cover">
+                    </div>
+                    <button class="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center">
+                        <i data-lucide="bell" class="w-4 h-4 text-slate-600"></i>
+                    </button>
+                </div>
+                <h2 class="text-2xl font-bold text-slate-900">Hello, Alex</h2>
+                <div class="flex items-center gap-2 mt-1">
+                    <span class="w-2 h-2 rounded-full bg-slate-300"></span>
+                    <p class="text-xs text-slate-500 font-medium">Protection is currently inactive</p>
+                </div>
+            </div>
+
+            <!-- Main Action -->
+            <div class="p-6">
+                <button onclick="switchScreen('active-timer')" class="w-full aspect-square rounded-[2rem] bg-brand-gradient shadow-xl shadow-blue-200/50 flex flex-col items-center justify-center text-white group hover:scale-[1.02] active:scale-95 transition-all duration-300 relative overflow-hidden">
+                    <div class="absolute inset-0 bg-white opacity-0 group-hover:opacity-10 transition-opacity"></div>
+                    <div class="w-20 h-20 bg-white/20 rounded-full flex items-center justify-center mb-4 backdrop-blur-sm">
+                        <i data-lucide="shield" class="w-10 h-10 fill-current"></i>
+                    </div>
+                    <span class="text-2xl font-bold tracking-tight">Arm Tether</span>
+                    <span class="text-sm opacity-90 mt-1 font-medium">30m Quick Guard</span>
+                </button>
+            </div>
+
+            <!-- Quick Modes -->
+            <div class="px-6 pb-6">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="text-sm font-bold text-slate-900">Verticals</h3>
+                    <button class="text-xs text-[#4292c6] font-medium">View All</button>
+                </div>
+                
+                <div class="grid grid-cols-2 gap-4">
+                    <!-- Dating Mode -->
+                    <button onclick="openModeMenu('dating')" class="p-4 bg-white rounded-2xl border border-slate-100 shadow-sm active:scale-95 transition text-left group">
+                        <div class="w-10 h-10 rounded-xl bg-pink-50 text-pink-500 flex items-center justify-center mb-3 group-hover:bg-pink-100 transition">
+                            <i data-lucide="heart" class="w-5 h-5"></i>
+                        </div>
+                        <div class="font-bold text-slate-900 text-sm">Dating</div>
+                        <div class="text-[11px] text-slate-500 mt-0.5">Meetings & Dates</div>
+                    </button>
+
+                    <!-- Ride Mode -->
+                    <button onclick="openModeMenu('ride')" class="p-4 bg-white rounded-2xl border border-slate-100 shadow-sm active:scale-95 transition text-left group">
+                        <div class="w-10 h-10 rounded-xl bg-indigo-50 text-indigo-500 flex items-center justify-center mb-3 group-hover:bg-indigo-100 transition">
+                            <i data-lucide="car" class="w-5 h-5"></i>
+                        </div>
+                        <div class="font-bold text-slate-900 text-sm">Ride</div>
+                        <div class="text-[11px] text-slate-500 mt-0.5">Solo Travel</div>
+                    </button>
+
+                    <!-- Market Mode -->
+                    <button onclick="openModeMenu('market')" class="p-4 bg-white rounded-2xl border border-slate-100 shadow-sm active:scale-95 transition text-left group">
+                        <div class="w-10 h-10 rounded-xl bg-sky-50 text-sky-500 flex items-center justify-center mb-3 group-hover:bg-sky-100 transition">
+                            <i data-lucide="shopping-bag" class="w-5 h-5"></i>
+                        </div>
+                        <div class="font-bold text-slate-900 text-sm">Marketplace</div>
+                        <div class="text-[11px] text-slate-500 mt-0.5">Buying & Selling</div>
+                    </button>
+
+                    <!-- Student Mode -->
+                    <button onclick="openModeMenu('student')" class="p-4 bg-white rounded-2xl border border-slate-100 shadow-sm active:scale-95 transition text-left group">
+                        <div class="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-500 flex items-center justify-center mb-3 group-hover:bg-emerald-100 transition">
+                            <i data-lucide="graduation-cap" class="w-5 h-5"></i>
+                        </div>
+                        <div class="font-bold text-slate-900 text-sm">Student</div>
+                        <div class="text-[11px] text-slate-500 mt-0.5">Campus Safety</div>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- === SCREEN: DYNAMIC MODE MENU === -->
+        <div id="screen-mode-menu" class="screen bg-slate-50">
+            <div class="h-full flex flex-col p-6 pt-12">
+                <!-- Header -->
+                <div class="flex items-center gap-3 mb-8 sticky top-0 z-10 bg-slate-50 py-2">
+                    <button onclick="switchScreen('home')" class="w-10 h-10 bg-white rounded-full shadow-sm flex items-center justify-center border border-slate-100 active:scale-95 transition">
+                        <i data-lucide="arrow-left" class="w-5 h-5 text-slate-700"></i>
+                    </button>
+                    <div>
+                        <h2 id="menu-title" class="font-bold text-xl text-slate-900">Mode Title</h2>
+                        <p id="menu-subtitle" class="text-xs text-slate-500">Mode Subtitle</p>
+                    </div>
+                </div>
+
+                <!-- Feature List Container -->
+                <div id="menu-list" class="space-y-4 pb-24">
+                    <!-- Javascript will inject buttons here -->
+                </div>
+            </div>
+        </div>
+
+        <!-- === SCREEN 2: ACTIVE TIMER (Generic) === -->
+        <div id="screen-active-timer" class="screen bg-slate-900 text-white flex flex-col items-center justify-center p-8">
+            <div class="absolute top-12 left-0 w-full flex justify-center">
+                <div class="bg-slate-800/80 backdrop-blur px-4 py-1.5 rounded-full flex items-center gap-2 border border-slate-700">
+                    <div class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></div>
+                    <span class="text-[10px] font-bold tracking-wide text-emerald-400">GPS MONITORING LIVE</span>
+                </div>
+            </div>
+            
+            <div class="relative mb-16 mt-8">
+                <div class="absolute inset-0 bg-emerald-500 rounded-full blur-2xl opacity-20 animate-pulse-slow"></div>
+                <!-- Circular Progress SVG -->
+                <svg class="w-72 h-72 transform -rotate-90 relative z-10">
+                    <circle cx="144" cy="144" r="136" stroke="#1e293b" stroke-width="8" fill="none" />
+                    <circle cx="144" cy="144" r="136" stroke="#10b981" stroke-width="8" fill="none" stroke-dasharray="854" stroke-dashoffset="100" stroke-linecap="round" />
+                </svg>
+                
+                <div class="absolute inset-0 flex flex-col items-center justify-center z-20">
+                    <span class="text-6xl font-mono font-bold text-white tracking-tighter" id="main-countdown">29:59</span>
+                    <span class="text-xs text-slate-400 mt-2 uppercase tracking-widest font-medium">Until Alert</span>
+                </div>
+            </div>
+
+            <div class="space-y-4 w-full px-4">
+                <button onclick="switchScreen('home', 'Check-in Confirmed. Timer Stopped.')" class="w-full py-4 bg-emerald-500 hover:bg-emerald-400 rounded-2xl font-bold text-white transition shadow-lg shadow-emerald-900/50 flex items-center justify-center gap-2 group">
+                    <i data-lucide="check-circle-2" class="w-5 h-5 group-hover:scale-110 transition"></i>
+                    I'M SAFE
+                </button>
+                <button onclick="showToast('SOS Triggered: Police Notified', 'error');" class="w-full py-4 bg-slate-800 border border-slate-700 text-red-400 rounded-2xl font-bold text-xs hover:bg-red-900/20 hover:border-red-500/50 transition flex items-center justify-center gap-2">
+                    <i data-lucide="alert-triangle" class="w-4 h-4"></i>
+                    TRIGGER SOS
+                </button>
+            </div>
+        </div>
+
+        <!-- === SCREEN 3: DATING MODE (Fake Call) === -->
+        <div id="screen-dating" class="screen bg-slate-900 text-white">
+            <div class="h-full flex flex-col p-6">
+                <!-- Header -->
+                <div class="flex items-center gap-3 mb-8 mt-8">
+                    <button onclick="switchScreen('home')" class="p-2 bg-slate-800 rounded-full hover:bg-slate-700 transition"><i data-lucide="arrow-left" class="w-5 h-5"></i></button>
+                    <div>
+                        <h2 class="font-bold text-lg">Dating Mode</h2>
+                        <p class="text-xs text-slate-400">Monitoring meeting with "Gabe"</p>
+                    </div>
+                </div>
+
+                <!-- Idle State -->
+                <div id="fc-idle" class="flex-1 flex flex-col items-center justify-center space-y-8 pb-20">
+                    <div class="p-6 bg-slate-800/50 rounded-3xl border border-slate-700 w-full backdrop-blur-sm">
+                        <div class="flex items-center gap-3 mb-3">
+                            <div class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></div>
+                            <span class="text-xs font-bold text-green-400 tracking-wide">PROTECTION ACTIVE</span>
+                        </div>
+                        <p class="text-sm text-slate-400 leading-relaxed">If your phone disconnects or leaves the 500ft geofence, we will alert your sister automatically.</p>
+                    </div>
+
+                    <div class="text-center">
+                        <button onclick="triggerFakeCall()" class="w-40 h-40 rounded-full bg-red-500/10 border border-red-500 text-red-500 flex flex-col items-center justify-center hover:bg-red-500 hover:text-white transition-all duration-300 group shadow-[0_0_40px_-10px_rgba(239,68,68,0.3)] hover:shadow-[0_0_60px_-10px_rgba(239,68,68,0.6)]">
+                            <i data-lucide="phone-call" class="w-10 h-10 mb-2 transition-transform group-hover:rotate-12"></i>
+                            <span class="text-sm font-bold uppercase tracking-wide">Get Out</span>
+                        </button>
+                        <p class="text-xs text-slate-500 mt-6 font-medium">Tap to trigger discreet fake call (3s delay)</p>
+                    </div>
+                </div>
+
+                <!-- Incoming Call State -->
+                <div id="fc-incoming" class="hidden absolute inset-0 bg-slate-900 bg-[url('https://images.unsplash.com/photo-1558591710-4b4a1ae0f04d?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60')] bg-cover bg-center z-50">
+                    <div class="absolute inset-0 bg-black/60 backdrop-blur-md"></div>
+                    <div class="relative z-10 h-full flex flex-col justify-between p-10 pt-24">
+                        <div class="flex flex-col items-center">
+                            <div class="w-28 h-28 bg-slate-200 rounded-full flex items-center justify-center mb-6 shadow-2xl">
+                                <i data-lucide="home" class="w-12 h-12 text-slate-900"></i>
+                            </div>
+                            <h2 class="text-3xl font-bold text-white">Landlord</h2>
+                            <p class="text-lg text-white/70 mt-1">Mobile</p>
+                        </div>
+                        <div class="flex justify-between items-end mb-12 px-4">
+                            <button onclick="resetFakeCall()" class="flex flex-col items-center gap-3 group">
+                                <div class="w-20 h-20 bg-red-500 rounded-full flex items-center justify-center text-3xl shadow-lg group-active:scale-95 transition">✕</div>
+                                <span class="text-sm font-medium">Decline</span>
+                            </button>
+                            <button onclick="resetFakeCall()" class="flex flex-col items-center gap-3 group">
+                                <div class="w-20 h-20 bg-green-500 rounded-full flex items-center justify-center text-3xl shadow-lg group-active:scale-95 transition">📞</div>
+                                <span class="text-sm font-medium">Accept</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- === SCREEN 4: MARKETPLACE (Evidence Locker) === -->
+        <div id="screen-market" class="screen bg-black text-white">
+            <!-- Viewfinder UI -->
+            <div class="absolute inset-0 z-0">
+                <img src="https://images.unsplash.com/photo-1549317661-bd32c8ce0db2?ixlib=rb-1.2.1&auto=format&fit=crop&w=600&q=80" class="w-full h-full object-cover opacity-60">
+                <!-- Grid Overlay -->
+                <div class="absolute inset-0 opacity-20" style="background-image: linear-gradient(#fff 1px, transparent 1px), linear-gradient(90deg, #fff 1px, transparent 1px); background-size: 33% 33%;"></div>
+            </div>
+            
+            <div class="relative z-10 h-full flex flex-col justify-between p-6 pt-12">
+                <div class="flex justify-between items-center">
+                    <button onclick="switchScreen('home')" class="w-10 h-10 bg-black/40 rounded-full backdrop-blur flex items-center justify-center"><i data-lucide="x" class="w-5 h-5"></i></button>
+                    <div class="px-3 py-1 bg-black/40 backdrop-blur rounded-full flex items-center gap-2">
+                        <div class="w-2 h-2 bg-red-500 rounded-full animate-pulse"></div>
+                        <span class="text-[10px] font-bold">SECURE VAULT</span>
+                    </div>
+                    <div class="w-10"></div> <!-- Spacer -->
+                </div>
+
+                <div class="flex flex-col items-center gap-6 pb-12">
+                     <div class="bg-black/40 backdrop-blur px-4 py-2 rounded-lg">
+                        <p class="text-xs text-center text-white font-medium">Align License Plate or Face</p>
+                    </div>
+                    <button onclick="captureEvidence()" class="w-20 h-20 rounded-full border-[5px] border-white flex items-center justify-center shadow-2xl">
+                        <div class="w-16 h-16 bg-white rounded-full active:scale-90 transition duration-150"></div>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Success Overlay -->
+            <div id="market-success" class="hidden absolute inset-0 bg-emerald-600 z-50 flex flex-col items-center justify-center text-center p-8">
+                <div class="w-24 h-24 bg-white rounded-full flex items-center justify-center mb-6 shadow-xl animate-bounce">
+                    <i data-lucide="lock" class="w-10 h-10 text-emerald-600"></i>
+                </div>
+                <h2 class="text-3xl font-bold">Evidence Secured</h2>
+                <p class="text-base text-white/90 mt-2 mb-10">Image encrypted and uploaded to cloud vault.</p>
+                <button onclick="switchScreen('home')" class="px-10 py-4 bg-white text-emerald-800 font-bold rounded-2xl shadow-lg active:scale-95 transition">Done</button>
+            </div>
+        </div>
+
+        <!-- === SCREEN 5: RIDE MODE (Map) === -->
+        <div id="screen-ride" class="screen bg-slate-50">
+            <!-- Map Background (SVG) -->
+            <div class="absolute inset-0 z-0 opacity-60">
+                <svg width="100%" height="100%">
+                    <defs>
+                        <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
+                            <path d="M 40 0 L 0 0 0 40" fill="none" stroke="#cbd5e1" stroke-width="1"/>
+                        </pattern>
+                    </defs>
+                    <rect width="100%" height="100%" fill="url(#grid)" />
+                    <!-- Route -->
+                    <path d="M 50 700 L 180 400 L 300 100" stroke="#94a3b8" stroke-width="8" fill="none" stroke-linecap="round" stroke-linejoin="round" />
+                    <path d="M 50 700 L 180 400 L 300 100" stroke="#3b82f6" stroke-width="4" fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="10 10" />
+                </svg>
+            </div>
+
+            <div class="relative z-10 h-full flex flex-col">
+                <div class="p-6 pt-12">
+                     <button onclick="switchScreen('home')" class="w-10 h-10 bg-white shadow-lg rounded-full mb-6 flex items-center justify-center"><i data-lucide="arrow-left" class="w-5 h-5 text-slate-700"></i></button>
+                     
+                     <div class="bg-white p-5 rounded-2xl shadow-xl border border-slate-100 flex items-center gap-4">
+                        <div class="w-12 h-12 bg-indigo-50 rounded-full flex items-center justify-center flex-shrink-0">
+                            <i data-lucide="navigation" class="w-6 h-6 text-indigo-600"></i>
+                        </div>
+                        <div class="flex-1">
+                            <h3 class="font-bold text-base text-slate-900">Trip to Airport</h3>
+                            <div class="flex items-center gap-2 mt-0.5">
+                                <span class="text-xs font-bold text-white bg-black px-1.5 rounded">UBER</span>
+                                <span class="text-xs text-slate-500">Black • Toyota Camry</span>
+                            </div>
+                        </div>
+                        <div class="text-right">
+                            <div class="text-sm font-bold text-slate-900">10:45</div>
+                            <div class="text-[10px] text-slate-400">ETA</div>
+                        </div>
+                     </div>
+                </div>
+
+                <!-- Car Element -->
+                <div id="ride-car" class="absolute w-8 h-8 bg-indigo-600 rounded-full border-[3px] border-white shadow-xl transition-all duration-[2000ms] ease-linear z-10 flex items-center justify-center" style="left: 45px; top: 690px;">
+                    <i data-lucide="car" class="w-4 h-4 text-white"></i>
+                </div>
+
+                <div class="mt-auto p-6 pb-24">
+                    <div class="flex gap-3">
+                         <button onclick="runRideSim('safe')" class="flex-1 py-4 bg-white border-2 border-slate-100 rounded-xl text-xs font-bold text-slate-600 hover:border-slate-300 transition shadow-sm">Simulate Safe</button>
+                         <button onclick="runRideSim('danger')" class="flex-1 py-4 bg-white border-2 border-red-100 rounded-xl text-xs font-bold text-red-600 hover:border-red-200 transition shadow-sm">Simulate Deviate</button>
+                    </div>
+                </div>
+
+                <!-- Alert Overlay -->
+                <div id="ride-alert" class="absolute bottom-0 left-0 right-0 bg-red-600 text-white p-8 rounded-t-[2.5rem] transform translate-y-full transition-transform duration-300 z-30 shadow-[0_-10px_40px_rgba(0,0,0,0.3)]">
+                    <div class="w-12 h-1 bg-white/20 rounded-full mx-auto mb-6"></div>
+                    <div class="flex items-center gap-4 mb-2">
+                        <div class="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center">
+                            <i data-lucide="alert-triangle" class="w-6 h-6 text-white"></i>
+                        </div>
+                        <div>
+                            <h3 class="font-bold text-xl">Route Deviation</h3>
+                            <p class="text-sm text-white/80">Active Monitoring</p>
+                        </div>
+                    </div>
+                    <p class="text-sm opacity-90 mb-8 mt-4 leading-relaxed bg-red-700/50 p-4 rounded-xl border border-red-500">Driver deviated 0.5mi from optimal route. We are checking your status.</p>
+                    <button onclick="resetRideSim()" class="w-full py-4 bg-white text-red-600 font-bold rounded-xl shadow-lg active:scale-95 transition">I'm Safe - Dismiss</button>
+                </div>
+            </div>
+
+             <!-- === SCREEN 6: STUDENT MODE === -->
+             <div id="screen-student" class="screen bg-emerald-50">
+                <div class="h-full flex flex-col p-6 pt-12">
+                    <div class="flex items-center gap-3 mb-10">
+                        <button onclick="switchScreen('home')" class="w-10 h-10 bg-white rounded-full shadow-sm flex items-center justify-center"><i data-lucide="arrow-left" class="w-5 h-5 text-emerald-900"></i></button>
+                        <div>
+                            <h2 class="font-bold text-emerald-900 text-lg">Safe Passage</h2>
+                            <p class="text-xs text-emerald-700">Walk Home Protocol</p>
+                        </div>
+                    </div>
+
+                    <div class="flex-1 flex flex-col items-center justify-center pb-20">
+                         <div class="w-56 h-56 rounded-full border-8 border-emerald-200 flex flex-col items-center justify-center bg-white shadow-2xl mb-10 relative">
+                             <div class="absolute -top-2 left-1/2 transform -translate-x-1/2 bg-emerald-100 text-emerald-700 px-3 py-1 rounded-full text-[10px] font-bold tracking-wide">TIMER ACTIVE</div>
+                             <span class="text-4xl font-mono font-bold text-emerald-600 tracking-tighter" id="student-time">15:00</span>
+                             <span class="text-[10px] text-slate-400 uppercase mt-1 font-bold">To Safe Zone</span>
+                         </div>
+                         
+                         <div class="bg-white p-5 rounded-2xl shadow-lg border border-emerald-100 w-full mb-4">
+                             <div class="flex justify-between items-center mb-3">
+                                 <div class="flex items-center gap-2">
+                                     <i data-lucide="map-pin" class="w-4 h-4 text-emerald-500"></i>
+                                     <span class="text-sm font-bold text-slate-700">Destination: Home</span>
+                                 </div>
+                                 <i data-lucide="check-circle-2" class="w-4 h-4 text-emerald-300"></i>
+                             </div>
+                             <div class="w-full bg-slate-100 h-2.5 rounded-full overflow-hidden">
+                                 <div class="h-full bg-emerald-500 w-1/3 rounded-full"></div>
+                             </div>
+                             <p class="text-[11px] text-slate-400 mt-3 text-right font-medium">0.4 miles remaining</p>
+                         </div>
+                    </div>
+
+                    <button onclick="showToast('Alert Sent to: Mom (SMS)', 'error');" class="w-full py-4 bg-white border-2 border-red-100 text-red-500 font-bold rounded-2xl hover:bg-red-50 hover:border-red-200 transition shadow-sm active:scale-95">
+                        Simulate Timer Expiry
+                    </button>
+                </div>
+             </div>
+
+            <!-- BOTTOM NAVIGATION -->
+            <div class="absolute bottom-0 w-full h-24 bg-white border-t border-slate-100 flex justify-around items-start pt-4 px-2 z-30 rounded-b-[40px]">
+                <button onclick="switchScreen('home')" class="flex flex-col items-center p-2 text-[#4292c6] w-16">
+                    <i data-lucide="home" class="w-6 h-6 mb-1"></i>
+                    <span class="text-[10px] font-medium">Home</span>
+                </button>
+                <button onclick="switchScreen('active-timer')" class="flex flex-col items-center p-2 text-slate-400 hover:text-slate-600 transition w-16">
+                    <i data-lucide="clock" class="w-6 h-6 mb-1"></i>
+                    <span class="text-[10px] font-medium">Active</span>
+                </button>
+                <div class="w-16"></div> <!-- Spacer for floating button -->
+                <button class="flex flex-col items-center p-2 text-slate-400 hover:text-slate-600 transition w-16">
+                    <i data-lucide="users" class="w-6 h-6 mb-1"></i>
+                    <span class="text-[10px] font-medium">Circle</span>
+                </button>
+                <button class="flex flex-col items-center p-2 text-slate-400 hover:text-slate-600 transition w-16">
+                    <i data-lucide="settings" class="w-6 h-6 mb-1"></i>
+                    <span class="text-[10px] font-medium">More</span>
+                </button>
+
+                <!-- Floating Center Button -->
+                <button onclick="switchScreen('active-timer')" class="absolute -top-8 left-1/2 transform -translate-x-1/2 w-16 h-16 bg-slate-900 rounded-full flex items-center justify-center shadow-2xl hover:scale-110 active:scale-95 transition border-4 border-slate-50">
+                    <i data-lucide="shield" class="w-7 h-7 text-white"></i>
+                </button>
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+        // Initialize Lucide Icons
+        if (window.lucide) {
+            lucide.createIcons();
+        }
+
+        // --- TOAST NOTIFICATION SYSTEM ---
+        function showToast(message, type = 'info') {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            
+            let bgClass = 'bg-slate-800 text-white';
+            let icon = 'info';
+            
+            if (type === 'success') { bgClass = 'bg-emerald-600 text-white'; icon = 'check-circle'; }
+            if (type === 'error') { bgClass = 'bg-red-500 text-white'; icon = 'alert-triangle'; }
+
+            toast.className = `toast-notification ${bgClass} px-4 py-3 rounded-full shadow-xl flex items-center gap-3 min-w-[200px] justify-center`;
+            toast.innerHTML = `
+                <i data-lucide="${icon}" class="w-4 h-4"></i>
+                <span class="text-xs font-bold">${message}</span>
+            `;
+
+            container.appendChild(toast);
+            lucide.createIcons(); // Re-init icons for the new toast
+
+            // Remove after 3s
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                toast.style.transform = 'translateY(-10px) translateX(-50%)';
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+
+        // --- MODE CONFIGURATION ---
+        const modeMenus = {
+            dating: {
+                title: "Dating Mode",
+                subtitle: "Safe dates & meetings",
+                features: [
+                    { icon: "phone-call", title: "'Get Out' Protocol", desc: "Trigger a fake emergency call", action: "switchScreen('dating')" },
+                    { icon: "clock", title: "Date Timer", desc: "Set a safety check-in", action: "switchScreen('active-timer')" }
+                ]
+            },
+            ride: {
+                title: "Ride Mode",
+                subtitle: "Solo travel protection",
+                features: [
+                    { icon: "map", title: "Route Monitor", desc: "Detect off-route deviations", action: "switchScreen('ride')" },
+                    { icon: "share-2", title: "Share Live Trip", desc: "Send tracking link to contacts", action: "showToast('Trip Link Copied', 'success')" }
+                ]
+            },
+            market: {
+                title: "Marketplace Mode",
+                subtitle: "Secure buying & selling",
+                features: [
+                    { icon: "camera", title: "Evidence Locker", desc: "Securely upload photos", action: "switchScreen('market')" },
+                    { icon: "shield-check", title: "Vouch Badge", desc: "Show verifying badge to seller", action: "showToast('Verified Badge Displayed', 'success')" }
+                ]
+            },
+            student: {
+                title: "Student Mode",
+                subtitle: "Campus & Commute Safety",
+                features: [
+                    { icon: "map-pin", title: "Safe Passage", desc: "Geofenced walk timer", action: "switchScreen('student')" },
+                    { icon: "bell", title: "Panic Button", desc: "Instant alert to parents", action: "showToast('SOS Sent to Parents', 'error')" }
+                ]
+            }
+        };
+
+        // --- NAVIGATION LOGIC ---
+        function openModeMenu(mode) {
+            const config = modeMenus[mode];
+            if (!config) return;
+
+            document.getElementById('menu-title').innerText = config.title;
+            document.getElementById('menu-subtitle').innerText = config.subtitle;
+            
+            const list = document.getElementById('menu-list');
+            list.innerHTML = ''; // Clear existing
+
+            config.features.forEach(feat => {
+                const btn = document.createElement('button');
+                btn.className = "w-full p-4 bg-white rounded-2xl border border-slate-100 shadow-sm active:scale-95 transition text-left group flex items-center gap-4 hover:border-blue-100";
+                btn.onclick = new Function(feat.action); // converting string to function
+                btn.innerHTML = `
+                    <div class="w-12 h-12 bg-slate-50 rounded-xl flex items-center justify-center text-slate-600 group-hover:bg-blue-50 group-hover:text-blue-600 transition">
+                        <i data-lucide="${feat.icon}" class="w-6 h-6"></i>
+                    </div>
+                    <div>
+                        <h4 class="font-bold text-slate-900 text-sm">${feat.title}</h4>
+                        <p class="text-xs text-slate-500">${feat.desc}</p>
+                    </div>
+                    <i data-lucide="chevron-right" class="w-4 h-4 text-slate-300 ml-auto group-hover:text-blue-300"></i>
+                `;
+                list.appendChild(btn);
+            });
+
+            lucide.createIcons(); // Refresh icons
+            switchScreen('mode-menu');
+        }
+
+        function switchScreen(screenId, toastMsg = null) {
+            document.querySelectorAll('.screen').forEach(el => el.classList.remove('active'));
+            const target = document.getElementById(`screen-${screenId}`);
+            if (target) target.classList.add('active');
+            
+            // Status Bar Color Logic
+            const statusBarTexts = document.querySelectorAll('.status-text, .status-icons');
+            if (screenId === 'active-timer' || screenId === 'market' || screenId === 'dating') {
+                statusBarTexts.forEach(el => el.classList.remove('text-slate-900'));
+                statusBarTexts.forEach(el => el.classList.add('text-white'));
+            } else {
+                statusBarTexts.forEach(el => el.classList.remove('text-white'));
+                statusBarTexts.forEach(el => el.classList.add('text-slate-900'));
+            }
+
+            if (toastMsg) showToast(toastMsg, 'success');
+
+            // Reset specific states
+            if(screenId !== 'dating') resetFakeCall();
+            if(screenId !== 'market') document.getElementById('market-success').classList.add('hidden');
+        }
+
+        // --- DATING MODE LOGIC ---
+        function triggerFakeCall() {
+            const btn = document.querySelector('#fc-idle button');
+            const label = document.querySelector('#fc-idle p');
+            
+            showToast('Discreet signal sent...', 'info');
+            btn.classList.add('animate-pulse');
+            label.innerText = "Waiting for natural delay (3s)...";
+
+            setTimeout(() => {
+                document.getElementById('fc-incoming').classList.remove('hidden');
+                btn.classList.remove('animate-pulse');
+                label.innerText = "Tap to trigger discreet fake call (3s delay)";
+            }, 3000);
+        }
+
+        function resetFakeCall() {
+            document.getElementById('fc-incoming').classList.add('hidden');
+        }
+
+        // --- MARKETPLACE LOGIC ---
+        function captureEvidence() {
+            showToast('Encrypting...', 'info');
+            setTimeout(() => {
+                document.getElementById('market-success').classList.remove('hidden');
+                showToast('Upload Complete', 'success');
+            }, 1000);
+        }
+
+        // --- RIDE SIM LOGIC ---
+        function runRideSim(mode) {
+            const car = document.getElementById('ride-car');
+            const alertBox = document.getElementById('ride-alert');
+
+            // Reset
+            car.style.transition = 'none';
+            car.style.left = '45px';
+            car.style.top = '690px';
+            alertBox.classList.remove('translate-y-0');
+            alertBox.classList.add('translate-y-full');
+
+            // Force reflow
+            void car.offsetWidth;
+            car.style.transition = 'all 2s linear';
+
+            if (mode === 'safe') {
+                car.style.left = '145px';
+                car.style.top = '400px';
+                setTimeout(() => {
+                    car.style.left = '300px';
+                    car.style.top = '100px';
+                    showToast('Destination Reached', 'success');
+                }, 2000);
+            } else {
+                car.style.left = '145px';
+                car.style.top = '400px';
+                setTimeout(() => {
+                    car.style.left = '300px';
+                    car.style.top = '400px'; // Deviate right
+                    
+                    setTimeout(() => {
+                        alertBox.classList.remove('translate-y-full');
+                        alertBox.classList.add('translate-y-0');
+                        showToast('Route Deviation Detected', 'error');
+                    }, 500);
+                }, 2000);
+            }
+        }
+
+        function resetRideSim() {
+            const car = document.getElementById('ride-car');
+            const alertBox = document.getElementById('ride-alert');
+            alertBox.classList.add('translate-y-full');
+            car.style.transition = 'all 0.5s';
+            car.style.left = '45px';
+            car.style.top = '690px';
+        }
+
+        // Countdown Logic
+        setInterval(() => {
+            const el = document.getElementById('main-countdown');
+            let [m, s] = el.innerText.split(':').map(Number);
+            if (s === 0) {
+                if (m === 0) return;
+                m--;
+                s = 59;
+            } else {
+                s--;
+            }
+            el.innerText = `${m}:${s < 10 ? '0'+s : s}`;
+        }, 1000);
+
+    </script>
+</body>
+</html>
