@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tether: Mobile App</title>
+    <title>Tether: Mobile App Demo</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
@@ -34,7 +34,7 @@
             overflow: hidden;
             position: relative;
             background: #fff;
-            transform: scale(0.9); /* Default scale for smaller screens */
+            transform: scale(0.9);
         }
 
         @media (min-height: 900px) {
@@ -63,13 +63,16 @@
             color: #0f172a;
             overflow-y: auto;
             overflow-x: hidden;
+            display: none; /* Default hidden */
             opacity: 0;
-            pointer-events: none;
-            transition: opacity 0.3s ease;
+            transition: opacity 0.2s ease-in-out;
+            z-index: 0;
+            padding-bottom: 100px; /* Space for global nav */
         }
         .screen.active {
+            display: flex; /* Active screens are flex containers */
+            flex-direction: column;
             opacity: 1;
-            pointer-events: auto;
             z-index: 10;
         }
 
@@ -104,6 +107,14 @@
         #menu-drawer.open {
             transform: translateX(0);
         }
+
+        /* Pay Sheet Animation */
+        #pay-sheet {
+            transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        #pay-sheet.open {
+            transform: translateY(0);
+        }
     </style>
 </head>
 <body>
@@ -131,6 +142,35 @@
         <!-- Toast Container -->
         <div id="toast-container"></div>
 
+        <!-- PAYMENT SHEET OVERLAY -->
+        <div id="pay-sheet" class="absolute inset-x-0 bottom-0 h-2/3 bg-white z-[60] rounded-t-[30px] shadow-[0_-10px_40px_rgba(0,0,0,0.3)] transform translate-y-full flex flex-col">
+            <div class="p-6 border-b border-slate-100 flex justify-between items-center">
+                <h3 class="font-bold text-lg">Confirm Subscription</h3>
+                <button onclick="closePaySheet()" class="p-2 bg-slate-100 rounded-full"><i data-lucide="x" class="w-4 h-4"></i></button>
+            </div>
+            <div class="p-8 flex flex-col items-center flex-1">
+                <div class="w-20 h-20 rounded-2xl bg-brand-gradient flex items-center justify-center text-white mb-6 shadow-xl">
+                    <i data-lucide="shield" class="w-10 h-10 fill-current"></i>
+                </div>
+                <h2 class="text-2xl font-bold text-slate-900">Tether Guardian</h2>
+                <p class="text-slate-500 text-sm mt-1 mb-8">Monthly Premium Protection</p>
+                
+                <div class="w-full flex justify-between items-center py-4 border-t border-b border-slate-100 mb-8">
+                    <span class="font-medium text-slate-600">Total</span>
+                    <span class="font-bold text-xl text-slate-900">$9.99<span class="text-xs font-normal text-slate-400">/mo</span></span>
+                </div>
+
+                <button onclick="processPayment()" class="w-full py-4 bg-black text-white rounded-xl font-bold flex items-center justify-center gap-2 hover:bg-slate-800 transition relative overflow-hidden" id="pay-btn">
+                    <div id="pay-text" class="flex items-center gap-2">
+                        <i data-lucide="apple" class="w-5 h-5 fill-current"></i> Pay
+                    </div>
+                    <div id="pay-spinner" class="hidden absolute inset-0 flex items-center justify-center">
+                        <i data-lucide="loader-2" class="w-5 h-5 animate-spin"></i>
+                    </div>
+                </button>
+            </div>
+        </div>
+
         <!-- HAMBURGER MENU DRAWER -->
         <div id="menu-drawer" class="absolute inset-0 bg-slate-900 z-50 transform -translate-x-full flex flex-col">
             <div class="p-6 pt-16 flex justify-between items-center border-b border-slate-800">
@@ -141,7 +181,7 @@
             <div class="p-6 space-y-2 flex-1 overflow-y-auto">
                 <div class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2 mt-2">Premium Features</div>
                 
-                <button class="w-full p-4 bg-slate-800/50 rounded-xl flex items-center gap-4 text-white hover:bg-slate-800 transition group">
+                <button onclick="openPremium('dispatch')" class="w-full p-4 bg-slate-800/50 rounded-xl flex items-center gap-4 text-white hover:bg-slate-800 transition group">
                     <div class="w-10 h-10 rounded-full bg-red-500/20 text-red-400 flex items-center justify-center group-hover:bg-red-500 group-hover:text-white transition">
                         <i data-lucide="phone-call" class="w-5 h-5"></i>
                     </div>
@@ -149,10 +189,10 @@
                         <div class="font-bold text-sm">Live 911 Dispatch</div>
                         <div class="text-xs text-slate-400">Direct API connection</div>
                     </div>
-                    <i data-lucide="lock" class="w-4 h-4 text-slate-500 ml-auto"></i>
+                    <i data-lucide="chevron-right" class="w-4 h-4 text-slate-500 ml-auto"></i>
                 </button>
 
-                <button class="w-full p-4 bg-slate-800/50 rounded-xl flex items-center gap-4 text-white hover:bg-slate-800 transition group">
+                <button onclick="openPremium('guardian')" class="w-full p-4 bg-slate-800/50 rounded-xl flex items-center gap-4 text-white hover:bg-slate-800 transition group">
                     <div class="w-10 h-10 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center group-hover:bg-emerald-500 group-hover:text-white transition">
                         <i data-lucide="users" class="w-5 h-5"></i>
                     </div>
@@ -160,10 +200,10 @@
                         <div class="font-bold text-sm">Guardian Dashboard</div>
                         <div class="text-xs text-slate-400">Parental controls</div>
                     </div>
-                    <i data-lucide="lock" class="w-4 h-4 text-slate-500 ml-auto"></i>
+                    <i data-lucide="chevron-right" class="w-4 h-4 text-slate-500 ml-auto"></i>
                 </button>
 
-                <button class="w-full p-4 bg-slate-800/50 rounded-xl flex items-center gap-4 text-white hover:bg-slate-800 transition group">
+                <button onclick="openPremium('badge')" class="w-full p-4 bg-slate-800/50 rounded-xl flex items-center gap-4 text-white hover:bg-slate-800 transition group">
                     <div class="w-10 h-10 rounded-full bg-blue-500/20 text-blue-400 flex items-center justify-center group-hover:bg-blue-500 group-hover:text-white transition">
                         <i data-lucide="shield-check" class="w-5 h-5"></i>
                     </div>
@@ -171,55 +211,111 @@
                         <div class="font-bold text-sm">Vouch Badge</div>
                         <div class="text-xs text-slate-400">Verified ID Status</div>
                     </div>
-                    <i data-lucide="lock" class="w-4 h-4 text-slate-500 ml-auto"></i>
+                    <i data-lucide="chevron-right" class="w-4 h-4 text-slate-500 ml-auto"></i>
                 </button>
 
                 <div class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2 mt-6">Account</div>
-                <button class="w-full p-3 flex items-center gap-3 text-slate-300 hover:text-white">
+                <button onclick="openPaySheet()" class="w-full p-3 flex items-center gap-3 text-slate-300 hover:text-white">
                     <i data-lucide="credit-card" class="w-5 h-5"></i> Billing & Plans
                 </button>
-                <button class="w-full p-3 flex items-center gap-3 text-slate-300 hover:text-white">
+                <button onclick="switchScreen('settings')" class="w-full p-3 flex items-center gap-3 text-slate-300 hover:text-white">
                     <i data-lucide="settings" class="w-5 h-5"></i> App Settings
-                </button>
-                <button class="w-full p-3 flex items-center gap-3 text-slate-300 hover:text-white">
-                    <i data-lucide="help-circle" class="w-5 h-5"></i> Support
                 </button>
             </div>
 
             <div class="p-6 border-t border-slate-800">
-                <button class="w-full py-3 bg-gradient-to-r from-blue-600 to-teal-500 text-white font-bold rounded-xl shadow-lg">Upgrade to Premium</button>
+                <button onclick="openPaySheet()" class="w-full py-3 bg-gradient-to-r from-blue-600 to-teal-500 text-white font-bold rounded-xl shadow-lg">Upgrade to Premium</button>
             </div>
         </div>
 
+        <!-- GLOBAL BOTTOM NAVIGATION -->
+        <div class="absolute bottom-0 w-full h-24 bg-white border-t border-slate-100 flex justify-around items-start pt-4 px-2 z-40 rounded-b-[40px]">
+            <button onclick="switchScreen('home')" id="nav-home" class="nav-btn flex flex-col items-center p-2 text-[#4292c6] w-16 hover:bg-slate-50 rounded-lg transition">
+                <i data-lucide="home" class="w-6 h-6 mb-1"></i>
+                <span class="text-[10px] font-medium">Home</span>
+            </button>
+            <button onclick="switchScreen('active-timer')" id="nav-active" class="nav-btn flex flex-col items-center p-2 text-slate-400 hover:text-slate-600 transition w-16 hover:bg-slate-50 rounded-lg">
+                <i data-lucide="clock" class="w-6 h-6 mb-1"></i>
+                <span class="text-[10px] font-medium">Active</span>
+            </button>
+            <div class="w-16"></div> <!-- Spacer for floating button -->
+            <button onclick="switchScreen('circle')" id="nav-circle" class="nav-btn flex flex-col items-center p-2 text-slate-400 hover:text-slate-600 transition w-16 hover:bg-slate-50 rounded-lg">
+                <i data-lucide="users" class="w-6 h-6 mb-1"></i>
+                <span class="text-[10px] font-medium">Circle</span>
+            </button>
+            <button onclick="switchScreen('settings')" id="nav-settings" class="nav-btn flex flex-col items-center p-2 text-slate-400 hover:text-slate-600 transition w-16 hover:bg-slate-50 rounded-lg">
+                <i data-lucide="settings" class="w-6 h-6 mb-1"></i>
+                <span class="text-[10px] font-medium">More</span>
+            </button>
+
+            <!-- Floating Center Button -->
+            <button onclick="switchScreen('active-timer')" class="absolute -top-8 left-1/2 transform -translate-x-1/2 w-16 h-16 bg-slate-900 rounded-full flex items-center justify-center shadow-2xl hover:scale-110 active:scale-95 transition border-4 border-slate-50">
+                <i data-lucide="shield" class="w-7 h-7 text-white"></i>
+            </button>
+        </div>
+
         <!-- === SCREEN 1: HOME DASHBOARD === -->
-        <div id="screen-home" class="screen active bg-slate-50 pb-24">
+        <div id="screen-home" class="screen active bg-slate-50">
             <!-- Header -->
             <div class="p-6 pt-16 pb-6 bg-white border-b border-slate-100 shadow-sm sticky top-0 z-20">
                 <div class="flex justify-between items-center mb-4">
                     <button onclick="toggleMenu()" class="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center hover:bg-slate-200 transition">
                         <i data-lucide="menu" class="w-5 h-5 text-slate-900"></i>
                     </button>
-                    <div class="w-10 h-10 rounded-full bg-slate-200 overflow-hidden border-2 border-white shadow">
-                        <img src="https://i.pravatar.cc/150?u=a042581f4e29026024d" alt="Profile" class="w-full h-full object-cover">
+                    <!-- Updated Profile with Korean Gentleman & Badge -->
+                    <div class="relative">
+                        <div class="w-12 h-12 rounded-full bg-slate-200 overflow-hidden border-2 border-white shadow">
+                            <img src="https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?ixlib=rb-1.2.1&auto=format&fit=crop&w=200&q=80" alt="Profile" class="w-full h-full object-cover">
+                        </div>
+                        <div class="absolute -bottom-1 -right-1 w-5 h-5 bg-blue-500 rounded-full border-2 border-white flex items-center justify-center text-white shadow-sm">
+                            <i data-lucide="check" class="w-3 h-3"></i>
+                        </div>
                     </div>
                 </div>
-                <h2 class="text-2xl font-bold text-slate-900">Hello, Alex</h2>
+                <h2 class="text-2xl font-bold text-slate-900">Hello, Gabe</h2>
                 <div class="flex items-center gap-2 mt-1">
                     <span class="w-2 h-2 rounded-full bg-slate-300"></span>
                     <p class="text-xs text-slate-500 font-medium">Protection is currently inactive</p>
                 </div>
             </div>
 
-            <!-- Main Action -->
+            <!-- Main Action: Safety Dashboard -->
             <div class="p-6">
-                <button onclick="switchScreen('active-timer')" class="w-full aspect-square rounded-[2rem] bg-brand-gradient shadow-xl shadow-blue-200/50 flex flex-col items-center justify-center text-white group hover:scale-[1.02] active:scale-95 transition-all duration-300 relative overflow-hidden">
-                    <div class="absolute inset-0 bg-white opacity-0 group-hover:opacity-10 transition-opacity"></div>
-                    <div class="w-20 h-20 bg-white/20 rounded-full flex items-center justify-center mb-4 backdrop-blur-sm">
-                        <i data-lucide="shield" class="w-10 h-10 fill-current"></i>
+                <div class="bg-white rounded-[2rem] p-6 shadow-xl border border-slate-100 relative overflow-hidden group">
+                    <div class="absolute top-0 right-0 p-4 opacity-5 pointer-events-none">
+                        <i data-lucide="shield-check" class="w-32 h-32 text-slate-900"></i>
                     </div>
-                    <span class="text-2xl font-bold tracking-tight">Arm Tether</span>
-                    <span class="text-sm opacity-90 mt-1 font-medium">30m Quick Guard</span>
-                </button>
+                    
+                    <div class="relative z-10">
+                        <div class="flex items-center gap-2 mb-2">
+                            <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                            <span class="text-[10px] font-bold text-emerald-600 uppercase tracking-wider">System Online</span>
+                        </div>
+                        <h3 class="text-2xl font-bold text-slate-900 mb-6 tracking-tight">You are Safe</h3>
+                        
+                        <div class="grid grid-cols-2 gap-3 mb-6">
+                            <div class="bg-slate-50 p-3 rounded-xl border border-slate-100">
+                                <div class="text-slate-400 text-[10px] uppercase font-bold mb-1">Safety Circle</div>
+                                <div class="text-slate-900 font-bold text-sm flex items-center gap-1">
+                                    <i data-lucide="users" class="w-3 h-3"></i> 3 Active
+                                </div>
+                            </div>
+                            <div class="bg-slate-50 p-3 rounded-xl border border-slate-100">
+                                <div class="text-slate-400 text-[10px] uppercase font-bold mb-1">Vouch Score</div>
+                                <div class="text-slate-900 font-bold text-sm flex items-center gap-1">
+                                    <i data-lucide="star" class="w-3 h-3 fill-current text-yellow-400"></i> 98/100
+                                </div>
+                            </div>
+                        </div>
+
+                        <button onclick="switchScreen('active-timer')" class="w-full py-4 bg-brand-gradient text-white rounded-xl font-bold shadow-lg shadow-blue-200 hover:shadow-xl transition transform active:scale-95 flex items-center justify-center gap-2 group">
+                            <div class="bg-white/20 p-1 rounded-full group-hover:rotate-12 transition">
+                                <i data-lucide="shield" class="w-4 h-4 fill-current"></i>
+                            </div>
+                            Arm Safety Tether
+                        </button>
+                    </div>
+                </div>
             </div>
 
             <!-- Quick Modes -->
@@ -231,7 +327,7 @@
                 
                 <div class="grid grid-cols-2 gap-4">
                     <!-- Dating Mode -->
-                    <button onclick="openModeMenu('dating')" class="p-4 bg-white rounded-2xl border border-slate-100 shadow-sm active:scale-95 transition text-left group">
+                    <button onclick="openModeMenu('dating')" class="p-4 bg-white rounded-2xl border border-slate-100 shadow-sm active:scale-95 transition text-left group hover:border-pink-200">
                         <div class="w-10 h-10 rounded-xl bg-pink-50 text-pink-500 flex items-center justify-center mb-3 group-hover:bg-pink-100 transition">
                             <i data-lucide="heart" class="w-5 h-5"></i>
                         </div>
@@ -240,7 +336,7 @@
                     </button>
 
                     <!-- Ride Mode -->
-                    <button onclick="openModeMenu('ride')" class="p-4 bg-white rounded-2xl border border-slate-100 shadow-sm active:scale-95 transition text-left group">
+                    <button onclick="openModeMenu('ride')" class="p-4 bg-white rounded-2xl border border-slate-100 shadow-sm active:scale-95 transition text-left group hover:border-indigo-200">
                         <div class="w-10 h-10 rounded-xl bg-indigo-50 text-indigo-500 flex items-center justify-center mb-3 group-hover:bg-indigo-100 transition">
                             <i data-lucide="car" class="w-5 h-5"></i>
                         </div>
@@ -249,21 +345,163 @@
                     </button>
 
                     <!-- Market Mode -->
-                    <button onclick="openModeMenu('market')" class="p-4 bg-white rounded-2xl border border-slate-100 shadow-sm active:scale-95 transition text-left group">
+                    <button onclick="openModeMenu('market')" class="p-4 bg-white rounded-2xl border border-slate-100 shadow-sm active:scale-95 transition text-left group hover:border-sky-200">
                         <div class="w-10 h-10 rounded-xl bg-sky-50 text-sky-500 flex items-center justify-center mb-3 group-hover:bg-sky-100 transition">
                             <i data-lucide="shopping-bag" class="w-5 h-5"></i>
                         </div>
                         <div class="font-bold text-slate-900 text-sm">Marketplace</div>
                         <div class="text-[11px] text-slate-500 mt-0.5">Buying & Selling</div>
                     </button>
+                </div>
+            </div>
+        </div>
 
-                    <!-- Student Mode -->
-                    <button onclick="openModeMenu('student')" class="p-4 bg-white rounded-2xl border border-slate-100 shadow-sm active:scale-95 transition text-left group">
-                        <div class="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-500 flex items-center justify-center mb-3 group-hover:bg-emerald-100 transition">
-                            <i data-lucide="graduation-cap" class="w-5 h-5"></i>
+        <!-- === SCREEN: CIRCLE (SOCIAL SAFETY) === -->
+        <div id="screen-circle" class="screen bg-slate-50">
+            <div class="h-full flex flex-col p-6 pt-12 relative">
+                <!-- Header -->
+                <div class="flex items-center justify-between mb-6 sticky top-0 z-10 bg-slate-50 py-2">
+                    <h2 class="font-bold text-2xl text-slate-900">Safety Circle</h2>
+                    <button class="w-10 h-10 rounded-full bg-white shadow-sm flex items-center justify-center border border-slate-100 text-slate-600">
+                        <i data-lucide="plus" class="w-5 h-5"></i>
+                    </button>
+                </div>
+
+                <!-- Map Header -->
+                <div class="bg-slate-200 rounded-3xl h-48 mb-6 relative overflow-hidden shadow-inner border border-slate-300">
+                    <!-- Fake Map -->
+                    <svg width="100%" height="100%" class="absolute inset-0 opacity-40">
+                        <pattern id="grid-circle" width="40" height="40" patternUnits="userSpaceOnUse">
+                            <path d="M 40 0 L 0 0 0 40" fill="none" stroke="#94a3b8" stroke-width="1"/>
+                        </pattern>
+                        <rect width="100%" height="100%" fill="url(#grid-circle)" />
+                    </svg>
+                    <!-- Pins -->
+                    <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
+                        <div class="w-12 h-12 bg-[#4292c6] rounded-full border-4 border-white shadow-lg flex items-center justify-center z-10 relative">
+                            <img src="https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?ixlib=rb-1.2.1&auto=format&fit=crop&w=100&q=80" class="w-full h-full rounded-full object-cover">
                         </div>
-                        <div class="font-bold text-slate-900 text-sm">Student</div>
-                        <div class="text-[11px] text-slate-500 mt-0.5">Campus Safety</div>
+                        <div class="absolute -bottom-2 -right-2 bg-emerald-500 rounded-full p-1 border-2 border-white">
+                            <i data-lucide="shield" class="w-3 h-3 text-white fill-current"></i>
+                        </div>
+                    </div>
+                    <div class="absolute top-10 left-10">
+                        <div class="w-8 h-8 bg-pink-400 rounded-full border-2 border-white shadow-md flex items-center justify-center">
+                            <span class="text-[10px] font-bold text-white">M</span>
+                        </div>
+                    </div>
+                    <div class="absolute bottom-10 right-16">
+                        <div class="w-8 h-8 bg-indigo-400 rounded-full border-2 border-white shadow-md flex items-center justify-center">
+                            <span class="text-[10px] font-bold text-white">S</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Member List -->
+                <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">Members</h3>
+                <div class="space-y-3 mb-8">
+                    <!-- Member 1 -->
+                    <div class="bg-white p-4 rounded-2xl border border-slate-100 shadow-sm flex items-center justify-between">
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 rounded-full bg-pink-100 flex items-center justify-center text-pink-600 font-bold">M</div>
+                            <div>
+                                <h4 class="font-bold text-slate-900 text-sm">Mom</h4>
+                                <p class="text-xs text-slate-500 flex items-center gap-1"><span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> At Home • 100%</p>
+                            </div>
+                        </div>
+                        <button onclick="showToast('Ping sent to Mom', 'info')" class="text-xs font-bold text-[#4292c6] bg-blue-50 px-3 py-1.5 rounded-lg hover:bg-blue-100">Ping</button>
+                    </div>
+                    <!-- Member 2 -->
+                    <div class="bg-white p-4 rounded-2xl border border-slate-100 shadow-sm flex items-center justify-between">
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-600 font-bold">S</div>
+                            <div>
+                                <h4 class="font-bold text-slate-900 text-sm">Sister</h4>
+                                <p class="text-xs text-slate-500 flex items-center gap-1"><i data-lucide="car" class="w-3 h-3"></i> Driving • 45mph</p>
+                            </div>
+                        </div>
+                        <button onclick="showToast('Ping sent to Sister', 'info')" class="text-xs font-bold text-[#4292c6] bg-blue-50 px-3 py-1.5 rounded-lg hover:bg-blue-100">Ping</button>
+                    </div>
+                </div>
+
+                <!-- Activity Feed -->
+                <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">Recent Activity</h3>
+                <div class="space-y-4 pl-4 border-l-2 border-slate-200">
+                    <div class="relative">
+                        <div class="absolute -left-[21px] top-1 w-3 h-3 bg-slate-300 rounded-full border-2 border-slate-50"></div>
+                        <p class="text-xs text-slate-600"><span class="font-bold text-slate-900">Sister</span> left work.</p>
+                        <p class="text-[10px] text-slate-400">10 mins ago</p>
+                    </div>
+                    <div class="relative">
+                        <div class="absolute -left-[21px] top-1 w-3 h-3 bg-emerald-400 rounded-full border-2 border-slate-50"></div>
+                        <p class="text-xs text-slate-600"><span class="font-bold text-slate-900">Mom</span> arrived at Home.</p>
+                        <p class="text-[10px] text-slate-400">2 hrs ago</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- === SCREEN: SETTINGS === -->
+        <div id="screen-settings" class="screen bg-slate-50">
+            <div class="h-full flex flex-col p-6 pt-16 pb-24">
+                <h2 class="text-2xl font-bold text-slate-900 mb-6">Settings</h2>
+                
+                <div class="space-y-6">
+                    <div>
+                        <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">Account</h3>
+                        <div class="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
+                            <button class="w-full p-4 flex items-center justify-between hover:bg-slate-50 border-b border-slate-50">
+                                <div class="flex items-center gap-3">
+                                    <i data-lucide="user" class="w-5 h-5 text-slate-400"></i>
+                                    <span class="text-sm font-medium text-slate-700">Edit Profile</span>
+                                </div>
+                                <i data-lucide="chevron-right" class="w-4 h-4 text-slate-300"></i>
+                            </button>
+                            <button class="w-full p-4 flex items-center justify-between hover:bg-slate-50">
+                                <div class="flex items-center gap-3">
+                                    <i data-lucide="bell" class="w-5 h-5 text-slate-400"></i>
+                                    <span class="text-sm font-medium text-slate-700">Notifications</span>
+                                </div>
+                                <i data-lucide="chevron-right" class="w-4 h-4 text-slate-300"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div>
+                        <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">Safety</h3>
+                        <div class="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
+                            <button class="w-full p-4 flex items-center justify-between hover:bg-slate-50 border-b border-slate-50">
+                                <div class="flex items-center gap-3">
+                                    <i data-lucide="users" class="w-5 h-5 text-slate-400"></i>
+                                    <span class="text-sm font-medium text-slate-700">Manage Circle</span>
+                                </div>
+                                <i data-lucide="chevron-right" class="w-4 h-4 text-slate-300"></i>
+                            </button>
+                            <button class="w-full p-4 flex items-center justify-between hover:bg-slate-50">
+                                <div class="flex items-center gap-3">
+                                    <i data-lucide="shield" class="w-5 h-5 text-slate-400"></i>
+                                    <span class="text-sm font-medium text-slate-700">Privacy & Data</span>
+                                </div>
+                                <i data-lucide="chevron-right" class="w-4 h-4 text-slate-300"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div>
+                        <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">Support</h3>
+                        <div class="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
+                            <button class="w-full p-4 flex items-center justify-between hover:bg-slate-50">
+                                <div class="flex items-center gap-3">
+                                    <i data-lucide="help-circle" class="w-5 h-5 text-slate-400"></i>
+                                    <span class="text-sm font-medium text-slate-700">Get Help</span>
+                                </div>
+                                <i data-lucide="chevron-right" class="w-4 h-4 text-slate-300"></i>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <button class="w-full py-3 text-red-500 text-sm font-medium hover:bg-red-50 rounded-xl transition">
+                        Log Out
                     </button>
                 </div>
             </div>
@@ -286,6 +524,52 @@
                 <!-- Feature List Container -->
                 <div id="menu-list" class="space-y-4 pb-24">
                     <!-- Javascript will inject buttons here -->
+                </div>
+            </div>
+        </div>
+
+        <!-- === SCREEN: PREMIUM FEATURE DETAIL === -->
+        <div id="screen-premium" class="screen bg-slate-900 text-white">
+            <div class="h-full flex flex-col p-6 pt-12 relative overflow-hidden">
+                <!-- Background Glow -->
+                <div class="absolute top-0 right-0 w-64 h-64 bg-blue-500 opacity-20 rounded-full blur-[80px] pointer-events-none"></div>
+
+                <div class="flex items-center gap-3 mb-8 relative z-10">
+                    <button onclick="switchScreen('home')" class="w-10 h-10 bg-slate-800 rounded-full shadow-sm flex items-center justify-center hover:bg-slate-700 transition">
+                        <i data-lucide="arrow-left" class="w-5 h-5 text-white"></i>
+                    </button>
+                    <span class="text-xs font-bold text-slate-400 uppercase tracking-widest">Premium</span>
+                </div>
+
+                <div class="flex-1 relative z-10">
+                    <div id="premium-icon-container" class="w-20 h-20 rounded-2xl bg-slate-800 flex items-center justify-center mb-6">
+                        <!-- Icon injected -->
+                    </div>
+                    <h2 id="premium-title" class="text-3xl font-bold mb-4">Feature Title</h2>
+                    <p id="premium-desc" class="text-slate-400 leading-relaxed mb-8">Feature description goes here.</p>
+                    
+                    <div class="space-y-4">
+                        <div class="flex items-start gap-4">
+                            <div class="w-6 h-6 rounded-full bg-green-500/20 text-green-400 flex items-center justify-center mt-1"><i data-lucide="check" class="w-3 h-3"></i></div>
+                            <div>
+                                <h4 class="font-bold text-sm">Professional Grade</h4>
+                                <p class="text-xs text-slate-500">Used by security professionals.</p>
+                            </div>
+                        </div>
+                        <div class="flex items-start gap-4">
+                            <div class="w-6 h-6 rounded-full bg-green-500/20 text-green-400 flex items-center justify-center mt-1"><i data-lucide="check" class="w-3 h-3"></i></div>
+                            <div>
+                                <h4 class="font-bold text-sm">24/7 Availability</h4>
+                                <p class="text-xs text-slate-500">Servers never sleep.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="pb-12 relative z-10">
+                    <button onclick="openPaySheet()" class="w-full py-4 bg-white text-slate-900 font-bold rounded-xl shadow-lg hover:bg-slate-200 transition">
+                        Unlock Feature ($9.99/mo)
+                    </button>
                 </div>
             </div>
         </div>
@@ -327,9 +611,9 @@
 
         <!-- === SCREEN 3: DATING MODE (Fake Call) === -->
         <div id="screen-dating" class="screen bg-slate-900 text-white">
-            <div class="h-full flex flex-col p-6">
+            <div class="h-full flex flex-col p-6 relative">
                 <!-- Header -->
-                <div class="flex items-center gap-3 mb-8 mt-8">
+                <div class="flex items-center gap-3 mb-8 mt-8 absolute top-0 left-6 right-6 z-20">
                     <button onclick="switchScreen('home')" class="p-2 bg-slate-800 rounded-full hover:bg-slate-700 transition"><i data-lucide="arrow-left" class="w-5 h-5"></i></button>
                     <div>
                         <h2 class="font-bold text-lg">Dating Mode</h2>
@@ -337,9 +621,9 @@
                     </div>
                 </div>
 
-                <!-- Idle State -->
-                <div id="fc-idle" class="flex-1 flex flex-col items-center justify-center space-y-8 pb-20">
-                    <div class="p-6 bg-slate-800/50 rounded-3xl border border-slate-700 w-full backdrop-blur-sm">
+                <!-- Idle State - CENTERED FIX -->
+                <div id="fc-idle" class="h-full w-full flex flex-col justify-center items-center pb-20">
+                    <div class="p-6 bg-slate-800/50 rounded-3xl border border-slate-700 w-full backdrop-blur-sm mb-12">
                         <div class="flex items-center gap-3 mb-3">
                             <div class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></div>
                             <span class="text-xs font-bold text-green-400 tracking-wide">PROTECTION ACTIVE</span>
@@ -347,12 +631,12 @@
                         <p class="text-sm text-slate-400 leading-relaxed">If your phone disconnects or leaves the 500ft geofence, we will alert your sister automatically.</p>
                     </div>
 
-                    <div class="text-center">
-                        <button onclick="triggerFakeCall()" class="w-40 h-40 rounded-full bg-red-500/10 border border-red-500 text-red-500 flex flex-col items-center justify-center hover:bg-red-500 hover:text-white transition-all duration-300 group shadow-[0_0_40px_-10px_rgba(239,68,68,0.3)] hover:shadow-[0_0_60px_-10px_rgba(239,68,68,0.6)]">
-                            <i data-lucide="phone-call" class="w-10 h-10 mb-2 transition-transform group-hover:rotate-12"></i>
+                    <div class="text-center w-full flex flex-col items-center">
+                        <button onclick="triggerFakeCall()" class="w-48 h-48 rounded-full bg-red-500/10 border border-red-500 text-red-500 flex flex-col items-center justify-center hover:bg-red-500 hover:text-white transition-all duration-300 group shadow-[0_0_40px_-10px_rgba(239,68,68,0.3)] hover:shadow-[0_0_60px_-10px_rgba(239,68,68,0.6)]">
+                            <i data-lucide="phone-call" class="w-12 h-12 mb-3 transition-transform group-hover:rotate-12"></i>
                             <span class="text-sm font-bold uppercase tracking-wide">Get Out</span>
                         </button>
-                        <p class="text-xs text-slate-500 mt-6 font-medium">Tap to trigger discreet fake call (3s delay)</p>
+                        <p class="text-xs text-slate-500 mt-8 font-medium">Tap to trigger discreet fake call (3s delay)</p>
                     </div>
                 </div>
 
@@ -490,114 +774,6 @@
                 </div>
             </div>
 
-             <!-- === SCREEN 6: STUDENT MODE === -->
-             <div id="screen-student" class="screen bg-emerald-50">
-                <!-- SETUP VIEW -->
-                <div id="student-setup" class="h-full flex flex-col p-6 pt-12">
-                    <div class="flex items-center gap-3 mb-8">
-                        <button onclick="switchScreen('home')" class="w-10 h-10 bg-white rounded-full shadow-sm flex items-center justify-center"><i data-lucide="arrow-left" class="w-5 h-5 text-emerald-900"></i></button>
-                        <div>
-                            <h2 class="font-bold text-emerald-900 text-lg">Safe Passage</h2>
-                            <p class="text-xs text-emerald-700">Setup Walk</p>
-                        </div>
-                    </div>
-
-                    <div class="bg-white rounded-3xl p-6 shadow-sm border border-emerald-100 mb-6">
-                        <label class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2 block">Destination</label>
-                        <div class="flex items-center gap-3 p-3 bg-slate-50 rounded-xl border border-slate-100">
-                            <div class="w-8 h-8 rounded-full bg-emerald-100 flex items-center justify-center text-emerald-600"><i data-lucide="home" class="w-4 h-4"></i></div>
-                            <div class="flex-1">
-                                <div class="font-bold text-sm text-slate-900">Home</div>
-                                <div class="text-[10px] text-slate-500">123 Campus Dr</div>
-                            </div>
-                            <i data-lucide="chevron-down" class="w-4 h-4 text-slate-400"></i>
-                        </div>
-
-                        <label class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2 mt-6 block">Estimated Time</label>
-                        <div class="flex gap-2">
-                            <button class="flex-1 py-3 bg-emerald-600 text-white rounded-xl font-bold text-sm shadow-md">15 min</button>
-                            <button class="flex-1 py-3 bg-slate-50 text-slate-600 border border-slate-100 rounded-xl font-bold text-sm">30 min</button>
-                            <button class="flex-1 py-3 bg-slate-50 text-slate-600 border border-slate-100 rounded-xl font-bold text-sm">45 min</button>
-                        </div>
-                    </div>
-
-                    <div class="flex-1"></div>
-                    <button onclick="startStudentWalk()" class="w-full py-4 bg-emerald-600 text-white rounded-2xl font-bold shadow-xl hover:bg-emerald-700 transition transform active:scale-95">Start Walk</button>
-                </div>
-
-                <!-- ACTIVE WALK VIEW -->
-                <div id="student-active" class="hidden h-full flex flex-col p-6 pt-12 relative">
-                    <div class="flex justify-between items-center mb-10">
-                        <div class="bg-white/80 backdrop-blur px-3 py-1 rounded-full border border-emerald-100 flex items-center gap-2">
-                            <div class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></div>
-                            <span class="text-xs font-bold text-emerald-700">GPS Active</span>
-                        </div>
-                        <button onclick="resetStudentSim()" class="text-xs font-bold text-slate-400">Cancel</button>
-                    </div>
-
-                    <div class="flex-1 flex flex-col items-center">
-                         <div class="w-64 h-64 rounded-full border-[12px] border-emerald-100 flex flex-col items-center justify-center bg-white shadow-2xl mb-10 relative">
-                             <!-- Progress Ring SVG Simulation -->
-                             <svg class="absolute inset-0 w-full h-full transform -rotate-90">
-                                 <circle cx="128" cy="128" r="118" stroke="#10b981" stroke-width="12" fill="none" stroke-dasharray="741" stroke-dashoffset="0" stroke-linecap="round" id="student-progress" style="transition: stroke-dashoffset 1s linear;" />
-                             </svg>
-                             <div class="text-center z-10">
-                                 <span class="text-5xl font-mono font-bold text-emerald-600 tracking-tighter block" id="student-timer-display">15:00</span>
-                                 <span class="text-xs text-slate-400 uppercase font-bold tracking-widest mt-1 block">Remaining</span>
-                             </div>
-                         </div>
-                         
-                         <div class="bg-white p-5 rounded-2xl shadow-lg border border-emerald-100 w-full mb-4">
-                             <div class="flex justify-between items-center mb-2">
-                                 <span class="text-xs font-bold text-slate-500">Distance to Home</span>
-                                 <span class="text-xs font-bold text-emerald-600" id="student-distance">0.8 mi</span>
-                             </div>
-                             <div class="w-full bg-slate-100 h-2 rounded-full overflow-hidden">
-                                 <div id="student-bar" class="h-full bg-emerald-500 w-0 transition-all duration-1000"></div>
-                             </div>
-                         </div>
-                    </div>
-
-                    <div class="grid grid-cols-2 gap-3 mt-auto pb-24">
-                        <button onclick="simulateStudentAnomaly()" class="py-4 bg-white border-2 border-red-100 text-red-500 font-bold rounded-2xl hover:bg-red-50 hover:border-red-200 transition shadow-sm active:scale-95 text-xs">
-                            Simulate Delay
-                        </button>
-                        <button onclick="showToast('Safe Arrival Confirmed', 'success'); resetStudentSim();" class="py-4 bg-emerald-100 text-emerald-700 font-bold rounded-2xl hover:bg-emerald-200 transition shadow-sm active:scale-95 text-xs">
-                            Arrive Safe
-                        </button>
-                    </div>
-                </div>
-             </div>
-
-            <!-- BOTTOM NAVIGATION -->
-            <div class="absolute bottom-0 w-full h-24 bg-white border-t border-slate-100 flex justify-around items-start pt-4 px-2 z-30 rounded-b-[40px]">
-                <button onclick="switchScreen('home')" class="flex flex-col items-center p-2 text-[#4292c6] w-16">
-                    <i data-lucide="home" class="w-6 h-6 mb-1"></i>
-                    <span class="text-[10px] font-medium">Home</span>
-                </button>
-                <button onclick="switchScreen('active-timer')" class="flex flex-col items-center p-2 text-slate-400 hover:text-slate-600 transition w-16">
-                    <i data-lucide="clock" class="w-6 h-6 mb-1"></i>
-                    <span class="text-[10px] font-medium">Active</span>
-                </button>
-                <div class="w-16"></div> <!-- Spacer for floating button -->
-                <button class="flex flex-col items-center p-2 text-slate-400 hover:text-slate-600 transition w-16">
-                    <i data-lucide="users" class="w-6 h-6 mb-1"></i>
-                    <span class="text-[10px] font-medium">Circle</span>
-                </button>
-                <button class="flex flex-col items-center p-2 text-slate-400 hover:text-slate-600 transition w-16">
-                    <i data-lucide="settings" class="w-6 h-6 mb-1"></i>
-                    <span class="text-[10px] font-medium">More</span>
-                </button>
-
-                <!-- Floating Center Button -->
-                <button onclick="switchScreen('active-timer')" class="absolute -top-8 left-1/2 transform -translate-x-1/2 w-16 h-16 bg-slate-900 rounded-full flex items-center justify-center shadow-2xl hover:scale-110 active:scale-95 transition border-4 border-slate-50">
-                    <i data-lucide="shield" class="w-7 h-7 text-white"></i>
-                </button>
-            </div>
-
-        </div>
-    </div>
-
     <script>
         // Initialize Lucide Icons
         if (window.lucide) {
@@ -636,10 +812,35 @@
         function toggleMenu() {
             const drawer = document.getElementById('menu-drawer');
             drawer.classList.toggle('open');
-            // Check if open to change icon color if needed
-            if (drawer.classList.contains('open')) {
-                // Menu is open
-            }
+        }
+
+        // --- PAYMENT SHEET LOGIC ---
+        function openPaySheet() {
+            document.getElementById('pay-sheet').classList.add('open');
+            toggleMenu(); // Close menu if open
+        }
+
+        function closePaySheet() {
+            document.getElementById('pay-sheet').classList.remove('open');
+        }
+
+        function processPayment() {
+            const btn = document.getElementById('pay-btn');
+            const txt = document.getElementById('pay-text');
+            const spin = document.getElementById('pay-spinner');
+
+            txt.classList.add('opacity-0');
+            spin.classList.remove('hidden');
+
+            setTimeout(() => {
+                closePaySheet();
+                showToast('Premium Activated!', 'success');
+                // Reset button state
+                setTimeout(() => {
+                    txt.classList.remove('opacity-0');
+                    spin.classList.add('hidden');
+                }, 500);
+            }, 2000);
         }
 
         // --- MODE CONFIGURATION ---
@@ -667,15 +868,13 @@
                     { icon: "camera", title: "Evidence Locker", desc: "Securely upload photos", action: "switchScreen('market')" },
                     { icon: "shield-check", title: "Vouch Badge", desc: "Show verifying badge to seller", action: "showToast('Verified Badge Displayed', 'success')" }
                 ]
-            },
-            student: {
-                title: "Student Mode",
-                subtitle: "Campus & Commute Safety",
-                features: [
-                    { icon: "map-pin", title: "Safe Passage", desc: "Geofenced walk timer", action: "switchScreen('student')" },
-                    { icon: "bell", title: "Panic Button", desc: "Instant alert to parents", action: "showToast('SOS Sent to Parents', 'error')" }
-                ]
             }
+        };
+
+        const premiumFeatures = {
+            dispatch: { title: "Live 911 Dispatch", desc: "Connect directly to 911 dispatch centers via API, bypassing call queues and transmitting your exact GPS and profile.", icon: "phone-call", color: "text-red-400" },
+            guardian: { title: "Guardian Dashboard", desc: "Allow trusted contacts to view your live status, battery level, and route history in a private dashboard.", icon: "users", color: "text-emerald-400" },
+            badge: { title: "Vouched ID Badge", desc: "Get a verified 'Safe User' badge to display on dating apps and marketplaces, increasing trust.", icon: "shield-check", color: "text-blue-400" }
         };
 
         // --- NAVIGATION LOGIC ---
@@ -710,14 +909,47 @@
             switchScreen('mode-menu');
         }
 
+        function openPremium(key) {
+            const data = premiumFeatures[key];
+            if(!data) return;
+
+            document.getElementById('premium-title').innerText = data.title;
+            document.getElementById('premium-desc').innerText = data.desc;
+            
+            const iconContainer = document.getElementById('premium-icon-container');
+            iconContainer.innerHTML = `<i data-lucide="${data.icon}" class="w-8 h-8 ${data.color}"></i>`;
+            
+            toggleMenu(); // Close menu
+            switchScreen('premium');
+            lucide.createIcons();
+        }
+
         function switchScreen(screenId, toastMsg = null) {
             document.querySelectorAll('.screen').forEach(el => el.classList.remove('active'));
             const target = document.getElementById(`screen-${screenId}`);
             if (target) target.classList.add('active');
             
+            // Update Global Nav State
+            document.querySelectorAll('.nav-btn').forEach(btn => {
+                btn.classList.remove('text-[#4292c6]');
+                btn.classList.add('text-slate-400');
+            });
+            
+            let navId = '';
+            if(screenId === 'home') navId = 'nav-home';
+            if(screenId === 'active-timer') navId = 'nav-active';
+            if(screenId === 'circle') navId = 'nav-circle';
+            if(screenId === 'settings') navId = 'nav-settings';
+            
+            const activeBtn = document.getElementById(navId);
+            if(activeBtn) {
+                activeBtn.classList.remove('text-slate-400');
+                activeBtn.classList.add('text-[#4292c6]');
+            }
+
             // Status Bar Color Logic
             const statusBarTexts = document.querySelectorAll('.status-text, .status-icons');
-            if (screenId === 'active-timer' || screenId === 'market' || screenId === 'dating') {
+            if (screenId === 'active-timer' || screenId === 'market' || screenId === 'dating' || screenId === 'premium') {
                 statusBarTexts.forEach(el => el.classList.remove('text-slate-900'));
                 statusBarTexts.forEach(el => el.classList.add('text-white'));
             } else {
@@ -738,16 +970,13 @@
         // --- DATING MODE LOGIC ---
         function triggerFakeCall() {
             const btn = document.querySelector('#fc-idle button');
-            const label = document.querySelector('#fc-idle p');
             
             showToast('Discreet signal sent...', 'info');
             btn.classList.add('animate-pulse');
-            label.innerText = "Waiting for natural delay (3s)...";
 
             setTimeout(() => {
                 document.getElementById('fc-incoming').classList.remove('hidden');
                 btn.classList.remove('animate-pulse');
-                label.innerText = "Tap to trigger discreet fake call (3s delay)";
             }, 3000);
         }
 
@@ -762,63 +991,6 @@
                 document.getElementById('market-success').classList.remove('hidden');
                 showToast('Upload Complete', 'success');
             }, 1000);
-        }
-
-        // --- STUDENT MODE LOGIC (NEW) ---
-        let studentInterval;
-        
-        function startStudentWalk() {
-            document.getElementById('student-setup').classList.add('hidden');
-            document.getElementById('student-active').classList.remove('hidden');
-            
-            let timeLeft = 15 * 60; // 15 mins
-            let totalTime = 15 * 60;
-            let distance = 0.8;
-            
-            const timerDisplay = document.getElementById('student-timer-display');
-            const distanceDisplay = document.getElementById('student-distance');
-            const progressBar = document.getElementById('student-bar');
-            const ring = document.getElementById('student-progress');
-            const dashArray = 741; // Circumference
-
-            studentInterval = setInterval(() => {
-                timeLeft--;
-                // Update text
-                let m = Math.floor(timeLeft / 60);
-                let s = timeLeft % 60;
-                timerDisplay.innerText = `${m}:${s < 10 ? '0'+s : s}`;
-                
-                // Update distance simulation
-                let progress = (totalTime - timeLeft) / totalTime;
-                distance = (0.8 * (1 - progress)).toFixed(2);
-                distanceDisplay.innerText = `${distance} mi`;
-                progressBar.style.width = `${progress * 100}%`;
-                
-                // Update ring
-                ring.style.strokeDashoffset = dashArray * progress; // Inverse logic for ring fill/unfill
-
-                if (timeLeft <= 0) {
-                    clearInterval(studentInterval);
-                }
-            }, 1000);
-        }
-
-        function simulateStudentAnomaly() {
-            showToast('Anomaly Detected: Stopped > 2m', 'error');
-            const ring = document.getElementById('student-progress');
-            ring.style.stroke = '#ef4444'; // Turn red
-            document.getElementById('student-timer-display').classList.replace('text-emerald-600', 'text-red-500');
-        }
-
-        function resetStudentSim() {
-            clearInterval(studentInterval);
-            document.getElementById('student-setup').classList.remove('hidden');
-            document.getElementById('student-active').classList.add('hidden');
-            
-            // Reset styles
-            document.getElementById('student-progress').style.stroke = '#10b981';
-            document.getElementById('student-timer-display').classList.replace('text-red-500', 'text-emerald-600');
-            document.getElementById('student-bar').style.width = '0%';
         }
 
         // --- RIDE SIM LOGIC ---
@@ -870,7 +1042,7 @@
             car.style.top = '690px';
         }
 
-        // Countdown Logic
+        // Countdown Logic (Main)
         setInterval(() => {
             const el = document.getElementById('main-countdown');
             let [m, s] = el.innerText.split(':').map(Number);
