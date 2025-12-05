@@ -320,11 +320,6 @@
 
             <!-- Quick Modes -->
             <div class="px-6 pb-6">
-                <div class="flex justify-between items-center mb-4">
-                    <h3 class="text-sm font-bold text-slate-900">Verticals</h3>
-                    <button class="text-xs text-[#4292c6] font-medium">View All</button>
-                </div>
-                
                 <div class="grid grid-cols-2 gap-4">
                     <!-- Dating Mode -->
                     <button onclick="openModeMenu('dating')" class="p-4 bg-white rounded-2xl border border-slate-100 shadow-sm active:scale-95 transition text-left group hover:border-pink-200">
@@ -395,8 +390,9 @@
                     <i data-lucide="bus" class="w-6 h-6"></i>
                 </div>
 
-                <div class="mt-auto p-6 pb-24">
-                    <button onclick="runBusSim()" class="w-full py-4 bg-yellow-500 text-white rounded-xl font-bold shadow-lg hover:bg-yellow-600 transition">Simulate Bus Route</button>
+                <div class="mt-auto p-6 pb-24 grid grid-cols-2 gap-4">
+                    <button onclick="runBusSim()" class="w-full py-4 bg-yellow-500 text-white rounded-xl font-bold shadow-lg hover:bg-yellow-600 transition text-xs">Simulate Route</button>
+                    <button onclick="runBusDeviation()" class="w-full py-4 bg-red-500 text-white rounded-xl font-bold shadow-lg hover:bg-red-600 transition text-xs">Simulate Deviation</button>
                 </div>
             </div>
         </div>
@@ -413,13 +409,13 @@
                 </div>
 
                 <div class="flex-1 flex flex-col items-center justify-center pb-20">
-                     <div class="w-56 h-56 rounded-full border-8 border-emerald-200 flex flex-col items-center justify-center bg-white shadow-2xl mb-10 relative">
-                         <div class="absolute -top-2 left-1/2 transform -translate-x-1/2 bg-emerald-100 text-emerald-700 px-3 py-1 rounded-full text-[10px] font-bold tracking-wide">SAFE PASSAGE</div>
-                         <span class="text-4xl font-mono font-bold text-emerald-600 tracking-tighter" id="walk-timer">15:00</span>
+                     <div class="w-56 h-56 rounded-full border-8 border-emerald-200 flex flex-col items-center justify-center bg-white shadow-2xl mb-10 relative transition-all duration-500" id="walk-circle">
+                         <div class="absolute -top-2 left-1/2 transform -translate-x-1/2 bg-emerald-100 text-emerald-700 px-3 py-1 rounded-full text-[10px] font-bold tracking-wide" id="walk-status">SAFE PASSAGE</div>
+                         <span class="text-4xl font-mono font-bold text-emerald-600 tracking-tighter transition-colors duration-500" id="walk-timer">15:00</span>
                          <span class="text-[10px] text-slate-400 uppercase mt-1 font-bold">To Home</span>
                      </div>
                      
-                     <div class="bg-white p-5 rounded-2xl shadow-lg border border-emerald-100 w-full mb-4">
+                     <div class="bg-white p-5 rounded-2xl shadow-lg border border-emerald-100 w-full mb-4 transition-colors duration-500" id="walk-card">
                          <div class="flex justify-between items-center mb-3">
                              <div class="flex items-center gap-2">
                                  <i data-lucide="map-pin" class="w-4 h-4 text-emerald-500"></i>
@@ -433,7 +429,10 @@
                      </div>
                 </div>
 
-                <button onclick="startWalkSim()" class="w-full py-4 bg-emerald-600 text-white rounded-2xl font-bold shadow-xl hover:bg-emerald-700 transition">Start Walk Simulation</button>
+                <div class="grid grid-cols-2 gap-3 pb-24">
+                    <button onclick="startWalkSim()" class="w-full py-4 bg-emerald-600 text-white rounded-2xl font-bold shadow-xl hover:bg-emerald-700 transition text-xs">Start Walk</button>
+                    <button onclick="runWalkDeviation()" class="w-full py-4 bg-red-500 text-white rounded-2xl font-bold shadow-xl hover:bg-red-600 transition text-xs">Simulate Deviation</button>
+                </div>
             </div>
         </div>
 
@@ -562,6 +561,38 @@
                 </div>
             </div>
         </div>
+        
+         <!-- === NEW: VAULT SCREEN === -->
+        <div id="screen-vault" class="screen bg-slate-900 text-white">
+            <div class="h-full flex flex-col p-6 pt-12 relative">
+                <!-- Header -->
+                <div class="flex items-center gap-3 mb-8 sticky top-0 z-10 bg-slate-900 py-2">
+                     <button onclick="switchScreen('home')" class="w-10 h-10 bg-slate-800 rounded-full shadow-sm flex items-center justify-center hover:bg-slate-700 transition">
+                        <i data-lucide="arrow-left" class="w-5 h-5 text-white"></i>
+                    </button>
+                    <div>
+                        <h2 class="font-bold text-xl text-white">Evidence Vault</h2>
+                        <p class="text-xs text-slate-400">Encrypted & Locked</p>
+                    </div>
+                </div>
+                
+                <div class="grid grid-cols-2 gap-4 pb-24">
+                     <div class="aspect-square bg-slate-800 rounded-xl flex flex-col items-center justify-center border border-slate-700">
+                         <i data-lucide="lock" class="w-8 h-8 text-slate-500 mb-2"></i>
+                         <span class="text-xs text-slate-500 font-mono">IMG_001.enc</span>
+                     </div>
+                     <div class="aspect-square bg-slate-800 rounded-xl flex flex-col items-center justify-center border border-slate-700">
+                         <i data-lucide="lock" class="w-8 h-8 text-slate-500 mb-2"></i>
+                         <span class="text-xs text-slate-500 font-mono">IMG_002.enc</span>
+                     </div>
+                     <div class="aspect-square bg-slate-800 rounded-xl flex flex-col items-center justify-center border border-slate-700">
+                         <i data-lucide="lock" class="w-8 h-8 text-slate-500 mb-2"></i>
+                         <span class="text-xs text-slate-500 font-mono">LOC_LOG.enc</span>
+                     </div>
+                </div>
+            </div>
+        </div>
+
 
         <!-- === SCREEN: SETTINGS === -->
         <div id="screen-settings" class="screen bg-slate-50">
@@ -640,6 +671,16 @@
                     <div>
                         <h2 id="menu-title" class="font-bold text-xl text-slate-900">Mode Title</h2>
                         <p id="menu-subtitle" class="text-xs text-slate-500">Mode Subtitle</p>
+                    </div>
+                </div>
+                
+                 <!-- Connected Apps (Dynamic) -->
+                <div id="connected-apps-container" class="hidden mb-6">
+                    <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">Connected Apps</h3>
+                    <div class="flex gap-3">
+                         <div class="w-12 h-12 rounded-xl bg-pink-500 flex items-center justify-center text-white shadow-md"><i data-lucide="flame" class="w-6 h-6"></i></div>
+                         <div class="w-12 h-12 rounded-xl bg-yellow-400 flex items-center justify-center text-white shadow-md"><i data-lucide="message-circle" class="w-6 h-6"></i></div>
+                         <div class="w-12 h-12 rounded-xl bg-slate-800 flex items-center justify-center text-white shadow-md font-bold">H</div>
                     </div>
                 </div>
 
@@ -896,6 +937,583 @@
                 </div>
             </div>
 
+            <!-- === NEW: STUDENT MODE BUS === -->
+            <div id="screen-student-bus" class="screen bg-yellow-50">
+                <!-- Bus Map Background -->
+                <div class="absolute inset-0 z-0 opacity-60">
+                    <svg width="100%" height="100%">
+                        <rect width="100%" height="100%" fill="#fefce8" /> <!-- Yellow-50 -->
+                        <path d="M 50 700 L 180 400 L 300 100" stroke="#fbbf24" stroke-width="12" fill="none" stroke-linecap="round" stroke-linejoin="round" />
+                        <path d="M 50 700 L 180 400 L 300 100" stroke="#fff" stroke-width="4" fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="10 10" />
+                    </svg>
+                </div>
+
+                <div class="relative z-10 h-full flex flex-col">
+                    <div class="p-6 pt-12">
+                         <button onclick="switchScreen('home')" class="w-10 h-10 bg-white shadow-lg rounded-full mb-6 flex items-center justify-center"><i data-lucide="arrow-left" class="w-5 h-5 text-yellow-700"></i></button>
+                         <div class="bg-white p-5 rounded-2xl shadow-xl border border-yellow-200 flex items-center gap-4">
+                            <div class="w-12 h-12 bg-yellow-100 rounded-full flex items-center justify-center flex-shrink-0 text-yellow-600 font-bold">
+                                <i data-lucide="bus" class="w-6 h-6"></i>
+                            </div>
+                            <div class="flex-1">
+                                <h3 class="font-bold text-base text-slate-900">Route 44 School Bus</h3>
+                                <p class="text-xs text-slate-500">Heading Home • Stopped</p>
+                            </div>
+                         </div>
+                    </div>
+
+                    <!-- Bus Element -->
+                    <div id="bus-icon" class="absolute w-12 h-12 bg-yellow-500 rounded-lg border-[3px] border-white shadow-xl transition-all duration-[3000ms] ease-linear z-30 flex items-center justify-center text-white" style="left: 45px; top: 600px;">
+                        <i data-lucide="bus" class="w-6 h-6"></i>
+                    </div>
+
+                    <div class="mt-auto p-6 pb-24 grid grid-cols-2 gap-4">
+                        <button onclick="runBusSim()" class="w-full py-4 bg-yellow-500 text-white rounded-xl font-bold shadow-lg hover:bg-yellow-600 transition text-xs">Simulate Route</button>
+                        <button onclick="runBusDeviation()" class="w-full py-4 bg-red-500 text-white rounded-xl font-bold shadow-lg hover:bg-red-600 transition text-xs">Simulate Deviation</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- === NEW: STUDENT MODE WALK === -->
+            <div id="screen-student-walk" class="screen bg-emerald-50">
+                <div class="h-full flex flex-col p-6 pt-12 relative">
+                    <div class="flex items-center gap-3 mb-10">
+                        <button onclick="switchScreen('home')" class="w-10 h-10 bg-white rounded-full shadow-sm flex items-center justify-center"><i data-lucide="arrow-left" class="w-5 h-5 text-emerald-900"></i></button>
+                        <div>
+                            <h2 class="font-bold text-emerald-900 text-lg">Walk Home</h2>
+                            <p class="text-xs text-emerald-700">Timer Active</p>
+                        </div>
+                    </div>
+
+                    <div class="flex-1 flex flex-col items-center justify-center pb-20">
+                         <div class="w-56 h-56 rounded-full border-8 border-emerald-200 flex flex-col items-center justify-center bg-white shadow-2xl mb-10 relative transition-all duration-500" id="walk-circle">
+                             <div class="absolute -top-2 left-1/2 transform -translate-x-1/2 bg-emerald-100 text-emerald-700 px-3 py-1 rounded-full text-[10px] font-bold tracking-wide" id="walk-status">SAFE PASSAGE</div>
+                             <span class="text-4xl font-mono font-bold text-emerald-600 tracking-tighter transition-colors duration-500" id="walk-timer">15:00</span>
+                             <span class="text-[10px] text-slate-400 uppercase mt-1 font-bold">To Home</span>
+                         </div>
+                         
+                         <div class="bg-white p-5 rounded-2xl shadow-lg border border-emerald-100 w-full mb-4 transition-colors duration-500" id="walk-card">
+                             <div class="flex justify-between items-center mb-3">
+                                 <div class="flex items-center gap-2">
+                                     <i data-lucide="map-pin" class="w-4 h-4 text-emerald-500"></i>
+                                     <span class="text-sm font-bold text-slate-700">Destination: Home</span>
+                                 </div>
+                             </div>
+                             <div class="w-full bg-slate-100 h-2.5 rounded-full overflow-hidden">
+                                 <div id="walk-bar" class="h-full bg-emerald-500 w-0 transition-all duration-1000"></div>
+                             </div>
+                             <p class="text-[11px] text-slate-400 mt-3 text-right font-medium">0.4 miles remaining</p>
+                         </div>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-3 pb-24">
+                        <button onclick="startWalkSim()" class="w-full py-4 bg-emerald-600 text-white rounded-2xl font-bold shadow-xl hover:bg-emerald-700 transition text-xs">Start Walk</button>
+                        <button onclick="runWalkDeviation()" class="w-full py-4 bg-red-500 text-white rounded-2xl font-bold shadow-xl hover:bg-red-600 transition text-xs">Simulate Deviation</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- === NEW: STUDENT MODE HANGOUT === -->
+            <div id="screen-student-hangout" class="screen bg-indigo-50">
+                <div class="h-full flex flex-col p-6 pt-12 relative">
+                    <div class="flex items-center gap-3 mb-6">
+                        <button onclick="switchScreen('home')" class="w-10 h-10 bg-white rounded-full shadow-sm flex items-center justify-center"><i data-lucide="arrow-left" class="w-5 h-5 text-indigo-900"></i></button>
+                        <div>
+                            <h2 class="font-bold text-indigo-900 text-lg">Who are you with?</h2>
+                            <p class="text-xs text-indigo-700">Create a Safety Bubble</p>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-3 gap-4 mb-8">
+                        <button onclick="toggleFriend(this)" class="aspect-square bg-white rounded-2xl flex flex-col items-center justify-center shadow-sm border-2 border-transparent hover:border-indigo-300 transition gap-2">
+                            <div class="w-10 h-10 rounded-full bg-indigo-100 flex items-center justify-center">👴</div>
+                            <span class="text-xs font-bold text-slate-700">Paolo</span>
+                        </button>
+                        <button onclick="toggleFriend(this)" class="aspect-square bg-white rounded-2xl flex flex-col items-center justify-center shadow-sm border-2 border-transparent hover:border-indigo-300 transition gap-2">
+                            <div class="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center">👨</div>
+                            <span class="text-xs font-bold text-slate-700">Alberto</span>
+                        </button>
+                        <button onclick="toggleFriend(this)" class="aspect-square bg-white rounded-2xl flex flex-col items-center justify-center shadow-sm border-2 border-transparent hover:border-indigo-300 transition gap-2">
+                            <div class="w-10 h-10 rounded-full bg-pink-100 flex items-center justify-center">🦍</div>
+                            <span class="text-xs font-bold text-slate-700">Justin</span>
+                        </button>
+                        <button class="aspect-square bg-white/50 rounded-2xl flex flex-col items-center justify-center border-2 border-dashed border-indigo-200 text-indigo-400">
+                            <i data-lucide="plus" class="w-6 h-6"></i>
+                        </button>
+                    </div>
+
+                    <div class="bg-white p-6 rounded-3xl shadow-sm border border-indigo-100">
+                        <h4 class="font-bold text-sm mb-2 text-indigo-900">Guardian Notification</h4>
+                        <p class="text-xs text-slate-500 mb-4">"Checking in at <span class="font-bold">Starbucks</span> with..."</p>
+                        <div id="hangout-list" class="flex gap-2 min-h-[24px]"></div>
+                    </div>
+
+                    <div class="mt-auto pb-24">
+                        <button onclick="showToast('Safety Bubble Created', 'success'); switchScreen('home')" class="w-full py-4 bg-indigo-600 text-white rounded-2xl font-bold shadow-xl hover:bg-indigo-700 transition">Check In</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- === SCREEN: CIRCLE (SOCIAL SAFETY) === -->
+            <div id="screen-circle" class="screen bg-slate-50">
+                <div class="h-full flex flex-col p-6 pt-12 relative">
+                    <!-- Header -->
+                    <div class="flex items-center justify-between mb-6 sticky top-0 z-10 bg-slate-50 py-2">
+                        <h2 class="font-bold text-2xl text-slate-900">Safety Circle</h2>
+                        <button class="w-10 h-10 rounded-full bg-white shadow-sm flex items-center justify-center border border-slate-100 text-slate-600">
+                            <i data-lucide="plus" class="w-5 h-5"></i>
+                        </button>
+                    </div>
+
+                    <!-- Map Header -->
+                    <div class="bg-slate-200 rounded-3xl h-48 mb-6 relative overflow-hidden shadow-inner border border-slate-300">
+                        <!-- Fake Map -->
+                        <svg width="100%" height="100%" class="absolute inset-0 opacity-40">
+                            <pattern id="grid-circle" width="40" height="40" patternUnits="userSpaceOnUse">
+                                <path d="M 40 0 L 0 0 0 40" fill="none" stroke="#94a3b8" stroke-width="1"/>
+                            </pattern>
+                            <rect width="100%" height="100%" fill="url(#grid-circle)" />
+                        </svg>
+                        <!-- Pins -->
+                        <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
+                            <div class="w-12 h-12 bg-[#4292c6] rounded-full border-4 border-white shadow-lg flex items-center justify-center z-10 relative">
+                                <img src="https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?ixlib=rb-1.2.1&auto=format&fit=crop&w=100&q=80" class="w-full h-full rounded-full object-cover">
+                            </div>
+                            <div class="absolute -bottom-2 -right-2 bg-emerald-500 rounded-full p-1 border-2 border-white">
+                                <i data-lucide="shield" class="w-3 h-3 text-white fill-current"></i>
+                            </div>
+                        </div>
+                        <div class="absolute top-10 left-10">
+                            <div class="w-8 h-8 bg-pink-400 rounded-full border-2 border-white shadow-md flex items-center justify-center">
+                                <span class="text-[10px] font-bold text-white">M</span>
+                            </div>
+                        </div>
+                        <div class="absolute bottom-10 right-16">
+                            <div class="w-8 h-8 bg-indigo-400 rounded-full border-2 border-white shadow-md flex items-center justify-center">
+                                <span class="text-[10px] font-bold text-white">S</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Member List -->
+                    <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">Members</h3>
+                    <div class="space-y-3 mb-8">
+                        <!-- Member 1 -->
+                        <div class="bg-white p-4 rounded-2xl border border-slate-100 shadow-sm flex items-center justify-between">
+                            <div class="flex items-center gap-3">
+                                <div class="w-10 h-10 rounded-full bg-pink-100 flex items-center justify-center text-pink-600 font-bold">M</div>
+                                <div>
+                                    <h4 class="font-bold text-slate-900 text-sm">Mom</h4>
+                                    <p class="text-xs text-slate-500 flex items-center gap-1"><span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> At Home • 100%</p>
+                                </div>
+                            </div>
+                            <button onclick="showToast('Ping sent to Mom', 'info')" class="text-xs font-bold text-[#4292c6] bg-blue-50 px-3 py-1.5 rounded-lg hover:bg-blue-100">Ping</button>
+                        </div>
+                        <!-- Member 2 -->
+                        <div class="bg-white p-4 rounded-2xl border border-slate-100 shadow-sm flex items-center justify-between">
+                            <div class="flex items-center gap-3">
+                                <div class="w-10 h-10 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-600 font-bold">S</div>
+                                <div>
+                                    <h4 class="font-bold text-slate-900 text-sm">Sister</h4>
+                                    <p class="text-xs text-slate-500 flex items-center gap-1"><i data-lucide="car" class="w-3 h-3"></i> Driving • 45mph</p>
+                                </div>
+                            </div>
+                            <button onclick="showToast('Ping sent to Sister', 'info')" class="text-xs font-bold text-[#4292c6] bg-blue-50 px-3 py-1.5 rounded-lg hover:bg-blue-100">Ping</button>
+                        </div>
+                    </div>
+
+                    <!-- Activity Feed -->
+                    <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">Recent Activity</h3>
+                    <div class="space-y-4 pl-4 border-l-2 border-slate-200">
+                        <div class="relative">
+                            <div class="absolute -left-[21px] top-1 w-3 h-3 bg-slate-300 rounded-full border-2 border-slate-50"></div>
+                            <p class="text-xs text-slate-600"><span class="font-bold text-slate-900">Sister</span> left work.</p>
+                            <p class="text-[10px] text-slate-400">10 mins ago</p>
+                        </div>
+                        <div class="relative">
+                            <div class="absolute -left-[21px] top-1 w-3 h-3 bg-emerald-400 rounded-full border-2 border-slate-50"></div>
+                            <p class="text-xs text-slate-600"><span class="font-bold text-slate-900">Mom</span> arrived at Home.</p>
+                            <p class="text-[10px] text-slate-400">2 hrs ago</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+             <!-- === NEW: VAULT SCREEN === -->
+            <div id="screen-vault" class="screen bg-slate-900 text-white">
+                <div class="h-full flex flex-col p-6 pt-12 relative">
+                    <!-- Header -->
+                    <div class="flex items-center gap-3 mb-8 sticky top-0 z-10 bg-slate-900 py-2">
+                         <button onclick="switchScreen('home')" class="w-10 h-10 bg-slate-800 rounded-full shadow-sm flex items-center justify-center hover:bg-slate-700 transition">
+                            <i data-lucide="arrow-left" class="w-5 h-5 text-white"></i>
+                        </button>
+                        <div>
+                            <h2 class="font-bold text-xl text-white">Evidence Vault</h2>
+                            <p class="text-xs text-slate-400">Encrypted & Locked</p>
+                        </div>
+                    </div>
+                    
+                    <div class="grid grid-cols-2 gap-4 pb-24">
+                         <div class="aspect-square bg-slate-800 rounded-xl flex flex-col items-center justify-center border border-slate-700">
+                             <i data-lucide="lock" class="w-8 h-8 text-slate-500 mb-2"></i>
+                             <span class="text-xs text-slate-500 font-mono">IMG_001.enc</span>
+                         </div>
+                         <div class="aspect-square bg-slate-800 rounded-xl flex flex-col items-center justify-center border border-slate-700">
+                             <i data-lucide="lock" class="w-8 h-8 text-slate-500 mb-2"></i>
+                             <span class="text-xs text-slate-500 font-mono">IMG_002.enc</span>
+                         </div>
+                         <div class="aspect-square bg-slate-800 rounded-xl flex flex-col items-center justify-center border border-slate-700">
+                             <i data-lucide="lock" class="w-8 h-8 text-slate-500 mb-2"></i>
+                             <span class="text-xs text-slate-500 font-mono">LOC_LOG.enc</span>
+                         </div>
+                    </div>
+                </div>
+            </div>
+
+
+            <!-- === SCREEN: SETTINGS === -->
+            <div id="screen-settings" class="screen bg-slate-50">
+                <div class="h-full flex flex-col p-6 pt-16 pb-24">
+                    <h2 class="text-2xl font-bold text-slate-900 mb-6">Settings</h2>
+                    
+                    <div class="space-y-6">
+                        <div>
+                            <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">Account</h3>
+                            <div class="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
+                                <button class="w-full p-4 flex items-center justify-between hover:bg-slate-50 border-b border-slate-50">
+                                    <div class="flex items-center gap-3">
+                                        <i data-lucide="user" class="w-5 h-5 text-slate-400"></i>
+                                        <span class="text-sm font-medium text-slate-700">Edit Profile</span>
+                                    </div>
+                                    <i data-lucide="chevron-right" class="w-4 h-4 text-slate-300"></i>
+                                </button>
+                                <button class="w-full p-4 flex items-center justify-between hover:bg-slate-50">
+                                    <div class="flex items-center gap-3">
+                                        <i data-lucide="bell" class="w-5 h-5 text-slate-400"></i>
+                                        <span class="text-sm font-medium text-slate-700">Notifications</span>
+                                    </div>
+                                    <i data-lucide="chevron-right" class="w-4 h-4 text-slate-300"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        <div>
+                            <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">Safety</h3>
+                            <div class="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
+                                <button class="w-full p-4 flex items-center justify-between hover:bg-slate-50 border-b border-slate-50">
+                                    <div class="flex items-center gap-3">
+                                        <i data-lucide="users" class="w-5 h-5 text-slate-400"></i>
+                                        <span class="text-sm font-medium text-slate-700">Manage Circle</span>
+                                    </div>
+                                    <i data-lucide="chevron-right" class="w-4 h-4 text-slate-300"></i>
+                                </button>
+                                <button class="w-full p-4 flex items-center justify-between hover:bg-slate-50">
+                                    <div class="flex items-center gap-3">
+                                        <i data-lucide="shield" class="w-5 h-5 text-slate-400"></i>
+                                        <span class="text-sm font-medium text-slate-700">Privacy & Data</span>
+                                    </div>
+                                    <i data-lucide="chevron-right" class="w-4 h-4 text-slate-300"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        <div>
+                            <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">Support</h3>
+                            <div class="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
+                                <button class="w-full p-4 flex items-center justify-between hover:bg-slate-50">
+                                    <div class="flex items-center gap-3">
+                                        <i data-lucide="help-circle" class="w-5 h-5 text-slate-400"></i>
+                                        <span class="text-sm font-medium text-slate-700">Get Help</span>
+                                    </div>
+                                    <i data-lucide="chevron-right" class="w-4 h-4 text-slate-300"></i>
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <button class="w-full py-3 text-red-500 text-sm font-medium hover:bg-red-50 rounded-xl transition">
+                            Log Out
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- === SCREEN: DYNAMIC MODE MENU === -->
+            <div id="screen-mode-menu" class="screen bg-slate-50">
+                <div class="h-full flex flex-col p-6 pt-12">
+                    <!-- Header -->
+                    <div class="flex items-center gap-3 mb-8 sticky top-0 z-10 bg-slate-50 py-2">
+                        <button onclick="switchScreen('home')" class="w-10 h-10 bg-white rounded-full shadow-sm flex items-center justify-center border border-slate-100 active:scale-95 transition">
+                            <i data-lucide="arrow-left" class="w-5 h-5 text-slate-700"></i>
+                        </button>
+                        <div>
+                            <h2 id="menu-title" class="font-bold text-xl text-slate-900">Mode Title</h2>
+                            <p id="menu-subtitle" class="text-xs text-slate-500">Mode Subtitle</p>
+                        </div>
+                    </div>
+                    
+                     <!-- Connected Apps (Dynamic) -->
+                    <div id="connected-apps-container" class="hidden mb-6">
+                        <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">Connected Apps</h3>
+                        <div class="flex gap-3">
+                             <div class="w-12 h-12 rounded-xl bg-pink-500 flex items-center justify-center text-white shadow-md"><i data-lucide="flame" class="w-6 h-6"></i></div>
+                             <div class="w-12 h-12 rounded-xl bg-yellow-400 flex items-center justify-center text-white shadow-md"><i data-lucide="message-circle" class="w-6 h-6"></i></div>
+                             <div class="w-12 h-12 rounded-xl bg-slate-800 flex items-center justify-center text-white shadow-md font-bold">H</div>
+                        </div>
+                    </div>
+
+                    <!-- Feature List Container -->
+                    <div id="menu-list" class="space-y-4 pb-24">
+                        <!-- Javascript will inject buttons here -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- === SCREEN: PREMIUM FEATURE DETAIL === -->
+            <div id="screen-premium" class="screen bg-slate-900 text-white">
+                <div class="h-full flex flex-col p-6 pt-12 relative overflow-hidden">
+                    <!-- Background Glow -->
+                    <div class="absolute top-0 right-0 w-64 h-64 bg-blue-500 opacity-20 rounded-full blur-[80px] pointer-events-none"></div>
+
+                    <div class="flex items-center gap-3 mb-8 relative z-10">
+                        <button onclick="switchScreen('home')" class="w-10 h-10 bg-slate-800 rounded-full shadow-sm flex items-center justify-center hover:bg-slate-700 transition">
+                            <i data-lucide="arrow-left" class="w-5 h-5 text-white"></i>
+                        </button>
+                        <span class="text-xs font-bold text-slate-400 uppercase tracking-widest">Premium</span>
+                    </div>
+
+                    <div class="flex-1 relative z-10">
+                        <div id="premium-icon-container" class="w-20 h-20 rounded-2xl bg-slate-800 flex items-center justify-center mb-6">
+                            <!-- Icon injected -->
+                        </div>
+                        <h2 id="premium-title" class="text-3xl font-bold mb-4">Feature Title</h2>
+                        <p id="premium-desc" class="text-slate-400 leading-relaxed mb-8">Feature description goes here.</p>
+                        
+                        <div class="space-y-4">
+                            <div class="flex items-start gap-4">
+                                <div class="w-6 h-6 rounded-full bg-green-500/20 text-green-400 flex items-center justify-center mt-1"><i data-lucide="check" class="w-3 h-3"></i></div>
+                                <div>
+                                    <h4 class="font-bold text-sm">Professional Grade</h4>
+                                    <p class="text-xs text-slate-500">Used by security professionals.</p>
+                                </div>
+                            </div>
+                            <div class="flex items-start gap-4">
+                                <div class="w-6 h-6 rounded-full bg-green-500/20 text-green-400 flex items-center justify-center mt-1"><i data-lucide="check" class="w-3 h-3"></i></div>
+                                <div>
+                                    <h4 class="font-bold text-sm">24/7 Availability</h4>
+                                    <p class="text-xs text-slate-500">Servers never sleep.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="pb-12 relative z-10">
+                        <button onclick="openPaySheet()" class="w-full py-4 bg-white text-slate-900 font-bold rounded-xl shadow-lg hover:bg-slate-200 transition">
+                            Unlock Feature ($9.99/mo)
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- === SCREEN 2: ACTIVE TIMER (Generic) === -->
+            <div id="screen-active-timer" class="screen bg-slate-900 text-white flex flex-col items-center justify-center p-8">
+                <div class="absolute top-12 left-0 w-full flex justify-center">
+                    <div class="bg-slate-800/80 backdrop-blur px-4 py-1.5 rounded-full flex items-center gap-2 border border-slate-700">
+                        <div class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></div>
+                        <span class="text-[10px] font-bold tracking-wide text-emerald-400">GPS MONITORING LIVE</span>
+                    </div>
+                </div>
+                
+                <div class="relative mb-16 mt-8">
+                    <div class="absolute inset-0 bg-emerald-500 rounded-full blur-2xl opacity-20 animate-pulse-slow"></div>
+                    <!-- Circular Progress SVG -->
+                    <svg class="w-72 h-72 transform -rotate-90 relative z-10">
+                        <circle cx="144" cy="144" r="136" stroke="#1e293b" stroke-width="8" fill="none" />
+                        <circle cx="144" cy="144" r="136" stroke="#10b981" stroke-width="8" fill="none" stroke-dasharray="854" stroke-dashoffset="100" stroke-linecap="round" />
+                    </svg>
+                    
+                    <div class="absolute inset-0 flex flex-col items-center justify-center z-20">
+                        <span class="text-6xl font-mono font-bold text-white tracking-tighter" id="main-countdown">29:59</span>
+                        <span class="text-xs text-slate-400 mt-2 uppercase tracking-widest font-medium">Until Alert</span>
+                    </div>
+                </div>
+
+                <div class="space-y-4 w-full px-4">
+                    <button onclick="switchScreen('home', 'Check-in Confirmed. Timer Stopped.')" class="w-full py-4 bg-emerald-500 hover:bg-emerald-400 rounded-2xl font-bold text-white transition shadow-lg shadow-emerald-900/50 flex items-center justify-center gap-2 group">
+                        <i data-lucide="check-circle-2" class="w-5 h-5 group-hover:scale-110 transition"></i>
+                        I'M SAFE
+                    </button>
+                    <button onclick="showToast('SOS Triggered: Police Notified', 'error');" class="w-full py-4 bg-slate-800 border border-slate-700 text-red-400 rounded-2xl font-bold text-xs hover:bg-red-900/20 hover:border-red-500/50 transition flex items-center justify-center gap-2">
+                        <i data-lucide="alert-triangle" class="w-4 h-4"></i>
+                        TRIGGER SOS
+                    </button>
+                </div>
+            </div>
+
+            <!-- === SCREEN 3: DATING MODE (Fake Call) === -->
+            <div id="screen-dating" class="screen bg-slate-900 text-white">
+                <div class="h-full flex flex-col p-6 relative">
+                    <!-- Header -->
+                    <div class="flex items-center gap-3 mb-8 mt-8 absolute top-0 left-6 right-6 z-20">
+                        <button onclick="switchScreen('home')" class="p-2 bg-slate-800 rounded-full hover:bg-slate-700 transition"><i data-lucide="arrow-left" class="w-5 h-5"></i></button>
+                        <div>
+                            <h2 class="font-bold text-lg">Dating Mode</h2>
+                            <p class="text-xs text-slate-400">Monitoring meeting with "Gabe"</p>
+                        </div>
+                    </div>
+
+                    <!-- Idle State - CENTERED FIX -->
+                    <div id="fc-idle" class="h-full w-full flex flex-col justify-center items-center pb-20">
+                        <div class="p-6 bg-slate-800/50 rounded-3xl border border-slate-700 w-full backdrop-blur-sm mb-12">
+                            <div class="flex items-center gap-3 mb-3">
+                                <div class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></div>
+                                <span class="text-xs font-bold text-green-400 tracking-wide">PROTECTION ACTIVE</span>
+                            </div>
+                            <p class="text-sm text-slate-400 leading-relaxed">If your phone disconnects or leaves the 500ft geofence, we will alert your sister automatically.</p>
+                        </div>
+
+                        <div class="text-center w-full flex flex-col items-center">
+                            <button onclick="triggerFakeCall()" class="w-48 h-48 rounded-full bg-red-500/10 border border-red-500 text-red-500 flex flex-col items-center justify-center hover:bg-red-500 hover:text-white transition-all duration-300 group shadow-[0_0_40px_-10px_rgba(239,68,68,0.3)] hover:shadow-[0_0_60px_-10px_rgba(239,68,68,0.6)]">
+                                <i data-lucide="phone-call" class="w-12 h-12 mb-3 transition-transform group-hover:rotate-12"></i>
+                                <span class="text-sm font-bold uppercase tracking-wide">Get Out</span>
+                            </button>
+                            <p class="text-xs text-slate-500 mt-8 font-medium">Tap to trigger discreet fake call (3s delay)</p>
+                        </div>
+                    </div>
+
+                    <!-- Incoming Call State -->
+                    <div id="fc-incoming" class="hidden absolute inset-0 bg-slate-900 bg-[url('https://images.unsplash.com/photo-1558591710-4b4a1ae0f04d?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60')] bg-cover bg-center z-50">
+                        <div class="absolute inset-0 bg-black/60 backdrop-blur-md"></div>
+                        <div class="relative z-10 h-full flex flex-col justify-between p-10 pt-24">
+                            <div class="flex flex-col items-center">
+                                <div class="w-28 h-28 bg-slate-200 rounded-full flex items-center justify-center mb-6 shadow-2xl">
+                                    <i data-lucide="home" class="w-12 h-12 text-slate-900"></i>
+                                </div>
+                                <h2 class="text-3xl font-bold text-white">Landlord</h2>
+                                <p class="text-lg text-white/70 mt-1">Mobile</p>
+                            </div>
+                            <div class="flex justify-between items-end mb-12 px-4">
+                                <button onclick="resetFakeCall()" class="flex flex-col items-center gap-3 group">
+                                    <div class="w-20 h-20 bg-red-500 rounded-full flex items-center justify-center text-3xl shadow-lg group-active:scale-95 transition">✕</div>
+                                    <span class="text-sm font-medium">Decline</span>
+                                </button>
+                                <button onclick="resetFakeCall()" class="flex flex-col items-center gap-3 group">
+                                    <div class="w-20 h-20 bg-green-500 rounded-full flex items-center justify-center text-3xl shadow-lg group-active:scale-95 transition">📞</div>
+                                    <span class="text-sm font-medium">Accept</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- === SCREEN 4: MARKETPLACE (Evidence Locker) === -->
+            <div id="screen-market" class="screen bg-black text-white">
+                <!-- Viewfinder UI -->
+                <div class="absolute inset-0 z-0">
+                    <img src="https://images.unsplash.com/photo-1549317661-bd32c8ce0db2?ixlib=rb-1.2.1&auto=format&fit=crop&w=600&q=80" class="w-full h-full object-cover opacity-60">
+                    <!-- Grid Overlay -->
+                    <div class="absolute inset-0 opacity-20" style="background-image: linear-gradient(#fff 1px, transparent 1px), linear-gradient(90deg, #fff 1px, transparent 1px); background-size: 33% 33%;"></div>
+                </div>
+                
+                <div class="relative z-10 h-full flex flex-col justify-between p-6 pt-12">
+                    <div class="flex justify-between items-center">
+                        <button onclick="switchScreen('home')" class="w-10 h-10 bg-black/40 rounded-full backdrop-blur flex items-center justify-center"><i data-lucide="x" class="w-5 h-5"></i></button>
+                        <div class="px-3 py-1 bg-black/40 backdrop-blur rounded-full flex items-center gap-2">
+                            <div class="w-2 h-2 bg-red-500 rounded-full animate-pulse"></div>
+                            <span class="text-[10px] font-bold">SECURE VAULT</span>
+                        </div>
+                        <div class="w-10"></div> <!-- Spacer -->
+                    </div>
+
+                    <div class="flex flex-col items-center gap-6 pb-12">
+                         <div class="bg-black/40 backdrop-blur px-4 py-2 rounded-lg">
+                            <p class="text-xs text-center text-white font-medium">Align License Plate or Face</p>
+                        </div>
+                        <button onclick="captureEvidence()" class="w-20 h-20 rounded-full border-[5px] border-white flex items-center justify-center shadow-2xl">
+                            <div class="w-16 h-16 bg-white rounded-full active:scale-90 transition duration-150"></div>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Success Overlay -->
+                <div id="market-success" class="hidden absolute inset-0 bg-emerald-600 z-50 flex flex-col items-center justify-center text-center p-8">
+                    <div class="w-24 h-24 bg-white rounded-full flex items-center justify-center mb-6 shadow-xl animate-bounce">
+                        <i data-lucide="lock" class="w-10 h-10 text-emerald-600"></i>
+                    </div>
+                    <h2 class="text-3xl font-bold">Evidence Secured</h2>
+                    <p class="text-base text-white/90 mt-2 mb-10">Image encrypted and uploaded to cloud vault.</p>
+                    <button onclick="switchScreen('home')" class="px-10 py-4 bg-white text-emerald-800 font-bold rounded-2xl shadow-lg active:scale-95 transition">Done</button>
+                </div>
+            </div>
+
+            <!-- === SCREEN 5: RIDE MODE (Map) === -->
+            <div id="screen-ride" class="screen bg-slate-50">
+                <!-- Map Background (SVG) -->
+                <div class="absolute inset-0 z-0 opacity-60">
+                    <svg width="100%" height="100%">
+                        <defs>
+                            <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
+                                <path d="M 40 0 L 0 0 0 40" fill="none" stroke="#cbd5e1" stroke-width="1"/>
+                            </pattern>
+                        </defs>
+                        <rect width="100%" height="100%" fill="url(#grid)" />
+                        <!-- Route -->
+                        <path d="M 50 700 L 180 400 L 300 100" stroke="#94a3b8" stroke-width="8" fill="none" stroke-linecap="round" stroke-linejoin="round" />
+                        <path d="M 50 700 L 180 400 L 300 100" stroke="#3b82f6" stroke-width="4" fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="10 10" />
+                    </svg>
+                </div>
+
+                <div class="relative z-10 h-full flex flex-col">
+                    <div class="p-6 pt-12">
+                         <button onclick="switchScreen('home')" class="w-10 h-10 bg-white shadow-lg rounded-full mb-6 flex items-center justify-center"><i data-lucide="arrow-left" class="w-5 h-5 text-slate-700"></i></button>
+                         
+                         <div class="bg-white p-5 rounded-2xl shadow-xl border border-slate-100 flex items-center gap-4">
+                            <div class="w-12 h-12 bg-indigo-50 rounded-full flex items-center justify-center flex-shrink-0">
+                                <i data-lucide="navigation" class="w-6 h-6 text-indigo-600"></i>
+                            </div>
+                            <div class="flex-1">
+                                <h3 class="font-bold text-base text-slate-900">Trip to Airport</h3>
+                                <div class="flex items-center gap-2 mt-0.5">
+                                    <span class="text-xs font-bold text-white bg-black px-1.5 rounded">UBER</span>
+                                    <span class="text-xs text-slate-500">Black • Toyota Camry</span>
+                                </div>
+                            </div>
+                            <div class="text-right">
+                                <div class="text-sm font-bold text-slate-900">10:45</div>
+                                <div class="text-[10px] text-slate-400">ETA</div>
+                            </div>
+                         </div>
+                    </div>
+
+                    <!-- Car Element -->
+                    <div id="ride-car" class="absolute w-8 h-8 bg-indigo-600 rounded-full border-[3px] border-white shadow-xl transition-all duration-[2000ms] ease-linear z-10 flex items-center justify-center" style="left: 45px; top: 690px;">
+                        <i data-lucide="car" class="w-4 h-4 text-white"></i>
+                    </div>
+
+                    <div class="mt-auto p-6 pb-24">
+                        <div class="flex gap-3">
+                             <button onclick="runRideSim('safe')" class="flex-1 py-4 bg-white border-2 border-slate-100 rounded-xl text-xs font-bold text-slate-600 hover:border-slate-300 transition shadow-sm">Simulate Safe</button>
+                             <button onclick="runRideSim('danger')" class="flex-1 py-4 bg-white border-2 border-red-100 rounded-xl text-xs font-bold text-red-600 hover:border-red-200 transition shadow-sm">Simulate Deviate</button>
+                        </div>
+                    </div>
+
+                    <!-- Alert Overlay -->
+                    <div id="ride-alert" class="absolute bottom-0 left-0 right-0 bg-red-600 text-white p-8 rounded-t-[2.5rem] transform translate-y-full transition-transform duration-300 z-30 shadow-[0_-10px_40px_rgba(0,0,0,0.3)]">
+                        <div class="w-12 h-1 bg-white/20 rounded-full mx-auto mb-6"></div>
+                        <div class="flex items-center gap-4 mb-2">
+                            <div class="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center">
+                                <i data-lucide="alert-triangle" class="w-6 h-6 text-white"></i>
+                            </div>
+                            <div>
+                                <h3 class="font-bold text-xl">Route Deviation</h3>
+                                <p class="text-sm text-white/80">Active Monitoring</p>
+                            </div>
+                        </div>
+                        <p class="text-sm opacity-90 mb-8 mt-4 leading-relaxed bg-red-700/50 p-4 rounded-xl border border-red-500">Driver deviated 0.5mi from optimal route. We are checking your status.</p>
+                        <button onclick="resetRideSim()" class="w-full py-4 bg-white text-red-600 font-bold rounded-xl shadow-lg active:scale-95 transition">I'm Safe - Dismiss</button>
+                    </div>
+                </div>
+
     <script>
         // Initialize Lucide Icons
         if (window.lucide) {
@@ -970,6 +1588,7 @@
             dating: {
                 title: "Dating Mode",
                 subtitle: "Safe dates & meetings",
+                connectedApps: ['tinder', 'bumble', 'hinge'],
                 features: [
                     { icon: "phone-call", title: "'Get Out' Protocol", desc: "Trigger a fake emergency call", action: "switchScreen('dating')" },
                     { icon: "clock", title: "Date Timer", desc: "Set a safety check-in", action: "switchScreen('active-timer')" }
@@ -988,6 +1607,7 @@
                 subtitle: "Secure buying & selling",
                 features: [
                     { icon: "camera", title: "Evidence Locker", desc: "Securely upload photos", action: "switchScreen('market')" },
+                    { icon: "lock", title: "View Evidence Vault", desc: "Access encrypted files", action: "switchScreen('vault')" },
                     { icon: "shield-check", title: "Vouch Badge", desc: "Show verifying badge to seller", action: "showToast('Verified Badge Displayed', 'success')" }
                 ]
             },
@@ -1015,6 +1635,14 @@
 
             document.getElementById('menu-title').innerText = config.title;
             document.getElementById('menu-subtitle').innerText = config.subtitle;
+            
+            // Handle Connected Apps visibility
+            const appsContainer = document.getElementById('connected-apps-container');
+            if (config.connectedApps) {
+                appsContainer.classList.remove('hidden');
+            } else {
+                appsContainer.classList.add('hidden');
+            }
             
             const list = document.getElementById('menu-list');
             list.innerHTML = ''; // Clear existing
@@ -1080,7 +1708,7 @@
 
             // Status Bar Color Logic
             const statusBarTexts = document.querySelectorAll('.status-text, .status-icons');
-            if (screenId === 'active-timer' || screenId === 'market' || screenId === 'dating' || screenId === 'premium') {
+            if (screenId === 'active-timer' || screenId === 'market' || screenId === 'dating' || screenId === 'premium' || screenId === 'vault') {
                 statusBarTexts.forEach(el => el.classList.remove('text-slate-900'));
                 statusBarTexts.forEach(el => el.classList.add('text-white'));
             } else {
@@ -1200,6 +1828,35 @@
                 showToast('Bus Route Monitored', 'success');
             }, 3000);
         }
+        
+        function runBusDeviation() {
+             const bus = document.getElementById('bus-icon');
+            
+            // Ensure bus is reset first
+            bus.style.transition = 'none';
+            bus.style.left = '45px';
+            bus.style.top = '600px';
+            
+            void bus.offsetWidth; // Force Reflow
+            
+            // Start Multi-Stage Animation
+            bus.style.transition = 'left 3s linear, top 3s linear';
+            bus.style.left = '145px';
+            bus.style.top = '400px';
+            
+            setTimeout(() => {
+                // Deviation stage
+                bus.style.transition = 'left 2s linear, top 2s linear';
+                bus.style.left = '300px';
+                bus.style.top = '400px'; // Veering off path
+                
+                setTimeout(() => {
+                     showToast('BUS OFF ROUTE ALERT!', 'error');
+                     bus.classList.replace('bg-yellow-500', 'bg-red-600');
+                }, 2000);
+               
+            }, 3000);
+        }
 
         function resetBusSim() {
             const bus = document.getElementById('bus-icon');
@@ -1207,17 +1864,24 @@
                 bus.style.transition = 'none';
                 bus.style.left = '45px';
                 bus.style.top = '600px';
+                bus.classList.replace('bg-red-600', 'bg-yellow-500');
             }
         }
 
         // 2. Walk Sim
         let walkInterval;
         function startWalkSim() {
+            resetWalkSim(); // Clear any previous state
             let timeLeft = 15 * 60;
             const timer = document.getElementById('walk-timer');
             const bar = document.getElementById('walk-bar');
-            
-            clearInterval(walkInterval);
+             document.getElementById('walk-status').innerText = "SAFE PASSAGE";
+             document.getElementById('walk-status').className = "absolute -top-2 left-1/2 transform -translate-x-1/2 bg-emerald-100 text-emerald-700 px-3 py-1 rounded-full text-[10px] font-bold tracking-wide";
+             document.getElementById('walk-circle').classList.remove('border-red-200');
+             document.getElementById('walk-circle').classList.add('border-emerald-200');
+             timer.classList.remove('text-red-600');
+             timer.classList.add('text-emerald-600');
+
             
             walkInterval = setInterval(() => {
                 timeLeft -= 60; // Fast forward
@@ -1234,6 +1898,28 @@
                 }
             }, 200);
         }
+        
+        function runWalkDeviation() {
+             clearInterval(walkInterval);
+             document.getElementById('walk-status').innerText = "OFF ROUTE";
+             document.getElementById('walk-status').className = "absolute -top-2 left-1/2 transform -translate-x-1/2 bg-red-100 text-red-700 px-3 py-1 rounded-full text-[10px] font-bold tracking-wide animate-pulse";
+             
+             document.getElementById('walk-circle').classList.remove('border-emerald-200');
+             document.getElementById('walk-circle').classList.add('border-red-200');
+             
+             const timer = document.getElementById('walk-timer');
+             timer.classList.remove('text-emerald-600');
+             timer.classList.add('text-red-600');
+             
+             showToast('ROUTE DEVIATION DETECTED', 'error');
+        }
+        
+        function resetWalkSim() {
+            clearInterval(walkInterval);
+             document.getElementById('walk-bar').style.width = '0%';
+             document.getElementById('walk-timer').innerText = "15:00";
+        }
+
 
         // 3. Hangout Sim
         function toggleFriend(btn) {
