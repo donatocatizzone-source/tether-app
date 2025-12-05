@@ -24,6 +24,14 @@
         .bg-brand-gradient {
             background: linear-gradient(135deg, #4292c6 0%, #2dd4bf 100%);
         }
+        
+        /* Pro Gradient */
+        .bg-pro-gradient {
+            background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+        }
+        .text-pro-gold {
+            color: #fbbf24;
+        }
 
         /* Phone Simulator */
         .phone-frame {
@@ -208,6 +216,18 @@
             </div>
             
             <div class="p-6 space-y-2 flex-1 overflow-y-auto">
+                <!-- B2B LINK -->
+                <button onclick="switchScreen('b2b-home'); toggleMenu();" class="w-full p-4 mb-6 bg-gradient-to-r from-amber-200 to-yellow-500 rounded-xl flex items-center gap-4 text-slate-900 shadow-lg transform transition hover:scale-[1.02]">
+                    <div class="w-10 h-10 rounded-full bg-white/30 flex items-center justify-center">
+                        <i data-lucide="briefcase" class="w-5 h-5 text-slate-900"></i>
+                    </div>
+                    <div class="text-left">
+                        <div class="font-bold text-sm">Switch to Professional</div>
+                        <div class="text-xs text-slate-800/80">For Realtors & Agents</div>
+                    </div>
+                    <i data-lucide="arrow-right" class="w-4 h-4 ml-auto"></i>
+                </button>
+
                 <div class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2 mt-2">Premium Features</div>
                 
                 <button onclick="openPremium('dispatch')" class="w-full p-4 bg-slate-800/50 rounded-xl flex items-center gap-4 text-white hover:bg-slate-800 transition group">
@@ -264,7 +284,7 @@
         </div>
 
         <!-- GLOBAL BOTTOM NAVIGATION -->
-        <div class="absolute bottom-0 w-full h-24 bg-white border-t border-slate-100 flex justify-around items-start pt-4 px-2 z-40 rounded-b-[40px]">
+        <div id="bottom-nav" class="absolute bottom-0 w-full h-24 bg-white border-t border-slate-100 flex justify-around items-start pt-4 px-2 z-40 rounded-b-[40px]">
             <button onclick="switchScreen('home')" id="nav-home" class="nav-btn flex flex-col items-center p-2 text-[#4292c6] w-16 hover:bg-slate-50 rounded-lg transition">
                 <i data-lucide="home" class="w-6 h-6 mb-1"></i>
                 <span class="text-[10px] font-medium">Home</span>
@@ -393,6 +413,118 @@
                     </button>
                 </div>
             </div>
+        </div>
+
+        <!-- === SCREEN: B2B HOME (REALTOR MODE) === -->
+        <div id="screen-b2b-home" class="screen bg-slate-900 text-white">
+            <div class="h-full flex flex-col p-6 pt-16">
+                 <div class="flex justify-between items-center mb-6">
+                    <div>
+                        <div class="flex items-center gap-2 mb-1">
+                             <div class="w-6 h-6 rounded-md bg-yellow-500 flex items-center justify-center text-slate-900 font-bold text-xs">P</div>
+                             <span class="text-xs font-bold text-yellow-500 uppercase tracking-widest">Professional</span>
+                        </div>
+                        <h2 class="text-2xl font-bold">Agent Dashboard</h2>
+                    </div>
+                    <button onclick="switchScreen('home')" class="px-3 py-1.5 rounded-lg border border-slate-600 text-xs text-slate-400 hover:text-white hover:border-white transition">Exit Pro</button>
+                </div>
+
+                <!-- Showing Status -->
+                <div class="bg-slate-800 rounded-3xl p-6 border border-slate-700 mb-6 shadow-xl relative overflow-hidden">
+                    <div class="absolute top-0 right-0 p-4 opacity-10"><i data-lucide="home" class="w-32 h-32"></i></div>
+                    
+                    <div class="relative z-10">
+                        <span class="text-[10px] bg-emerald-900/50 text-emerald-400 px-2 py-1 rounded border border-emerald-500/20">GPS ACTIVE</span>
+                        <h3 class="text-xl font-bold mt-4 mb-1">Next Showing: 2:00 PM</h3>
+                        <p class="text-sm text-slate-400 mb-6">123 Skyline Dr, San Francisco</p>
+                        
+                        <button onclick="switchScreen('active-timer')" class="w-full py-4 bg-gradient-to-r from-yellow-500 to-amber-600 text-slate-900 font-bold rounded-xl flex items-center justify-center gap-2 shadow-lg hover:brightness-110 transition">
+                            <i data-lucide="key" class="w-4 h-4"></i> Start Showing Timer
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Pro Tools Grid -->
+                <div class="grid grid-cols-2 gap-4">
+                    <button onclick="switchScreen('b2b-openhouse')" class="p-5 bg-slate-800 rounded-2xl border border-slate-700 text-left hover:border-yellow-500/50 transition group">
+                        <div class="w-10 h-10 rounded-xl bg-slate-700 flex items-center justify-center mb-3 group-hover:bg-yellow-500 group-hover:text-slate-900 transition">
+                            <i data-lucide="users" class="w-5 h-5"></i>
+                        </div>
+                        <h4 class="font-bold text-sm">Open House</h4>
+                        <p class="text-[10px] text-slate-500 mt-1">Geofence Monitor</p>
+                    </button>
+                    
+                    <button onclick="showToast('ID Verification API Loading...', 'info')" class="p-5 bg-slate-800 rounded-2xl border border-slate-700 text-left hover:border-yellow-500/50 transition group">
+                        <div class="w-10 h-10 rounded-xl bg-slate-700 flex items-center justify-center mb-3 group-hover:bg-yellow-500 group-hover:text-slate-900 transition">
+                            <i data-lucide="scan-face" class="w-5 h-5"></i>
+                        </div>
+                        <h4 class="font-bold text-sm">Verify Client</h4>
+                        <p class="text-[10px] text-slate-500 mt-1">Scan ID / Driver Lic</p>
+                    </button>
+
+                    <button onclick="showToast('Team Status: All Safe', 'success')" class="p-5 bg-slate-800 rounded-2xl border border-slate-700 text-left hover:border-yellow-500/50 transition group col-span-2 flex items-center justify-between">
+                         <div>
+                            <h4 class="font-bold text-sm">Team Status</h4>
+                            <p class="text-[10px] text-slate-500 mt-1">Keller Williams - Team A</p>
+                         </div>
+                         <div class="flex -space-x-2">
+                             <div class="w-8 h-8 rounded-full bg-slate-600 border-2 border-slate-800"></div>
+                             <div class="w-8 h-8 rounded-full bg-slate-500 border-2 border-slate-800"></div>
+                             <div class="w-8 h-8 rounded-full bg-yellow-500 border-2 border-slate-800 flex items-center justify-center text-[10px] font-bold text-slate-900">+3</div>
+                         </div>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- === SCREEN: B2B OPEN HOUSE === -->
+        <div id="screen-b2b-openhouse" class="screen bg-slate-900 text-white">
+             <div class="h-full flex flex-col p-6 pt-12 relative">
+                <!-- Header -->
+                <div class="flex items-center gap-3 mb-8 sticky top-0 z-10 bg-slate-900 py-2">
+                     <button onclick="switchScreen('b2b-home')" class="w-10 h-10 bg-slate-800 rounded-full shadow-sm flex items-center justify-center hover:bg-slate-700 transition">
+                        <i data-lucide="arrow-left" class="w-5 h-5 text-white"></i>
+                    </button>
+                    <div>
+                        <h2 class="font-bold text-xl text-white">Open House</h2>
+                        <p class="text-xs text-yellow-500">Active Monitoring</p>
+                    </div>
+                </div>
+
+                <!-- House Map -->
+                <div class="bg-slate-800 rounded-2xl h-64 mb-6 relative overflow-hidden border border-slate-700">
+                    <div class="absolute inset-0 opacity-30 bg-[url('https://images.unsplash.com/photo-1568605114967-8130f3a36994?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80')] bg-cover bg-center"></div>
+                    <div class="absolute inset-0 bg-indigo-900/40"></div>
+                    
+                    <!-- Radar Ping Animation -->
+                    <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
+                        <span class="relative flex h-24 w-24">
+                          <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-yellow-400 opacity-20"></span>
+                          <span class="relative inline-flex rounded-full h-24 w-24 border-2 border-yellow-500 opacity-50"></span>
+                        </span>
+                    </div>
+                    <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-4 h-4 bg-yellow-500 rounded-full border-2 border-white shadow-lg"></div>
+                    
+                    <div class="absolute bottom-4 left-4 bg-black/60 backdrop-blur px-3 py-1 rounded text-xs font-mono">Geofence: 100ft</div>
+                </div>
+
+                <!-- Controls -->
+                <div class="space-y-4">
+                    <div class="p-4 bg-slate-800 rounded-xl border border-slate-700 flex justify-between items-center">
+                        <div>
+                             <h4 class="font-bold text-sm">Auto-Check In</h4>
+                             <p class="text-[10px] text-slate-500">Vibrate phone every 15m</p>
+                        </div>
+                        <div class="w-10 h-6 bg-yellow-500 rounded-full relative"><div class="absolute right-1 top-1 w-4 h-4 bg-white rounded-full shadow"></div></div>
+                    </div>
+
+                    <button onclick="showToast('Silent Alarm Triggered - Team Notified', 'error')" class="w-full py-6 bg-red-900/50 border border-red-500/50 text-red-400 rounded-xl font-bold flex flex-col items-center justify-center gap-1 hover:bg-red-900 transition">
+                        <i data-lucide="bell-off" class="w-6 h-6 mb-1"></i>
+                        SILENT ALARM
+                    </button>
+                    <p class="text-center text-[10px] text-slate-500">Alerts broker & team immediately. No local sound.</p>
+                </div>
+             </div>
         </div>
 
          <!-- === SCREEN: VOUCH SCORE === -->
